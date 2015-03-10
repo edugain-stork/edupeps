@@ -62,6 +62,13 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<!-- Standard SAML Engine -->
+		<dependency>
+		  <groupId>org.opensaml</groupId>
+		  <artifactId>opensaml</artifactId>
+		  <version>2.6.1</version>
+		</dependency>
+
 
 		<!-- Servlet & JSP -->
 		<dependency>
