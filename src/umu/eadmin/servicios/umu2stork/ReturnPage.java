@@ -271,21 +271,21 @@ public class ReturnPage extends HttpServlet {
 				JSONArray parametros = new JSONArray();
 				JSONObject parametro = new JSONObject();
 				try{
-				parametro.put(UMU2StorkProxy.APPHEADERSTR, appparam);
+				parametro.put(EduGAIN2StorkProxy.APPHEADERSTR, appparam);
 				parametros.put(parametro);
 				parametro = new JSONObject();
-				parametro.put(UMU2StorkProxy.URLHEADERSTR, returnURLparam);
+				parametro.put(EduGAIN2StorkProxy.URLHEADERSTR, returnURLparam);
 				parametros.put(parametro);
 				parametro = new JSONObject();
-				parametro.put(UMU2StorkProxy.DATAHEADERSTR, dataparam);
+				parametro.put(EduGAIN2StorkProxy.DATAHEADERSTR, dataparam);
 				parametros.put(parametro);
 				parametro = new JSONObject();
-				parametro.put(UMU2StorkProxy.SERVICEHEADERSTR, serviceparam);
+				parametro.put(EduGAIN2StorkProxy.SERVICEHEADERSTR, serviceparam);
 				parametros.put(parametro);
 				} catch (JSONException jse)
 				{
 					logger.severe("Imposible introducir parámetros del CAS en JSON: " + jse);
-					throw jse;
+					throw new ServletException(jse);
 				}
 				personalAttributeList = authnResponse.getPersonalAttributeList();
 				Map<String, JSONArray> atributosComplejos = new HashMap<String, JSONArray>();
@@ -304,7 +304,7 @@ public class ReturnPage extends HttpServlet {
 							catch(JSONException jse)
 							{
 								logger.severe("Imposible introducir JSON STORK Complex attr " + key + ": " + complex.get(key));
-								throw jse;
+								throw new ServletException(jse);
 							}
 						}
 						if (atributosComplejos.containsKey(pa.getName()))
@@ -342,7 +342,7 @@ public class ReturnPage extends HttpServlet {
 
 				// Parametros a form
 				out.println("<input type='hidden' name='DATA' value='"+ encoder.encode(parametros.toString()) + "'>");
-				out.println("<input type='hidden' name='" + UMU2StorkProxy.SERVICEHEADERSTR + "' value='"+ serviceparam + "'>");
+				out.println("<input type='hidden' name='" + EduGAIN2StorkProxy.SERVICEHEADERSTR + "' value='"+ serviceparam + "'>");
 				
 				//out.println("<center><input type='submit' value='Send' method='post'></center>");
 				out.println("<center><button type='submit' value='Send' method='post'><img src='webapp/img/send.png' width=25 border=3></button></center>");

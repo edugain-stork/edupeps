@@ -28,7 +28,7 @@ import eu.stork.peps.exceptions.STORKSAMLEngineException;
  * Servlet implementation class UMU2StorkProxy
  */
 @WebServlet("/UMU2StorkProxy")
-public class UMU2StorkProxy extends HttpServlet {
+public class EduGAIN2StorkProxy extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
     public static final String PRIVATE_KEY_FILE_PARAM = "proxy.privatekey";
@@ -78,14 +78,14 @@ public class UMU2StorkProxy extends HttpServlet {
 	private Stork2ProxyH2DB proxyH2db;
 
 	private final static Logger logger = Logger
-			.getLogger(umu.eadmin.servicios.umu2stork.UMU2StorkProxy.class
+			.getLogger(umu.eadmin.servicios.umu2stork.EduGAIN2StorkProxy.class
 					.getName());
 
 
 	/**
 	 * @see HttpServlet#HttpServlet()
 	 */
-	public UMU2StorkProxy() throws Exception {
+	public EduGAIN2StorkProxy() throws Exception {
 		super();
 		// TODO Auto-generated constructor stub
 		mandattributesxapp = new HashMap<String, String[]>();
@@ -119,14 +119,14 @@ public class UMU2StorkProxy extends HttpServlet {
 	    			}
 	    		}
 	    		
-	    		UMU2StorkProxy.PEPSPageUrl = properties.getProperty(PROPERTIES_PEPS_URL_PARAM);
-	    		UMU2StorkProxy.returnPageUrl = properties.getProperty(PROPERTIES_RETURNPAGE_URL_PARAM);
-	    		UMU2StorkProxy.spname = properties.getProperty(PROPERTIES_SPNAME_PARAM);
-	    		UMU2StorkProxy.spsector = properties.getProperty(PROPERTIES_SPSECTOR_PARAM);
-	    		UMU2StorkProxy.spinstitution = properties.getProperty(PROPERTIES_SPINSTITUTION_PARAM);
-	    		UMU2StorkProxy.spapp= properties.getProperty(PROPERTIES_SPAPP_PARAM);
-	    		UMU2StorkProxy.spcountry = properties.getProperty(PROPERTIES_SPCOUNTRY_PARAM);
-	    		UMU2StorkProxy.spid = properties.getProperty(PROPERTIES_SPID_PARAM);
+	    		EduGAIN2StorkProxy.PEPSPageUrl = properties.getProperty(PROPERTIES_PEPS_URL_PARAM);
+	    		EduGAIN2StorkProxy.returnPageUrl = properties.getProperty(PROPERTIES_RETURNPAGE_URL_PARAM);
+	    		EduGAIN2StorkProxy.spname = properties.getProperty(PROPERTIES_SPNAME_PARAM);
+	    		EduGAIN2StorkProxy.spsector = properties.getProperty(PROPERTIES_SPSECTOR_PARAM);
+	    		EduGAIN2StorkProxy.spinstitution = properties.getProperty(PROPERTIES_SPINSTITUTION_PARAM);
+	    		EduGAIN2StorkProxy.spapp= properties.getProperty(PROPERTIES_SPAPP_PARAM);
+	    		EduGAIN2StorkProxy.spcountry = properties.getProperty(PROPERTIES_SPCOUNTRY_PARAM);
+	    		EduGAIN2StorkProxy.spid = properties.getProperty(PROPERTIES_SPID_PARAM);
 	    		
 	    		
 			} catch (IOException e) {
@@ -338,16 +338,16 @@ public class UMU2StorkProxy extends HttpServlet {
 		
 		int QAA = 1;
 
-		final String destinationURL = UMU2StorkProxy.PEPSPageUrl;
-		final String assertConsumerUrl = UMU2StorkProxy.returnPageUrl;
+		final String destinationURL = EduGAIN2StorkProxy.PEPSPageUrl;
+		final String assertConsumerUrl = EduGAIN2StorkProxy.returnPageUrl;
 		
 	
-		final String spName = UMU2StorkProxy.spname;
-		final String spSector = UMU2StorkProxy.spsector;
-		final String spInstitution = UMU2StorkProxy.spinstitution;
-		final String spApplication = UMU2StorkProxy.spapp;
-		final String spCountry = UMU2StorkProxy.spcountry;
-		final String spId = UMU2StorkProxy.spid;
+		final String spName = EduGAIN2StorkProxy.spname;
+		final String spSector = EduGAIN2StorkProxy.spsector;
+		final String spInstitution = EduGAIN2StorkProxy.spinstitution;
+		final String spApplication = EduGAIN2StorkProxy.spapp;
+		final String spCountry = EduGAIN2StorkProxy.spcountry;
+		final String spId = EduGAIN2StorkProxy.spid;
 
 		final STORKAuthnRequest authRequest = new STORKAuthnRequest();
 

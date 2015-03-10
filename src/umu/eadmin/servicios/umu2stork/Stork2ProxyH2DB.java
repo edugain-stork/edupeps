@@ -80,7 +80,7 @@ public class Stork2ProxyH2DB {
 	
 	
 	private final static Logger logger = Logger
-			.getLogger(umu.eadmin.servicios.umu2stork.UMU2StorkProxy.class
+			.getLogger(umu.eadmin.servicios.umu2stork.EduGAIN2StorkProxy.class
 					.getName());
 	
 
