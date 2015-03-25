@@ -246,7 +246,14 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 		
 		// Carga de i18n de otros idiomas
 		String langparam = request.getParameter(LANGHEADERSTR);
-		if (langparam.equals("es"))
+		if (langparam != null)
+			if (langparam.equals("es"))
+			{
+				i18n = new Properties();
+				i18n.load(ReturnPage.class.getClassLoader().getResourceAsStream("es.properties"));
+			}
+			else
+				langparam="en";
 		{
 			i18n = new Properties();
 			i18n.load(ReturnPage.class.getClassLoader().getResourceAsStream("es.properties"));
