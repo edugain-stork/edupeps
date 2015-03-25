@@ -1,6 +1,8 @@
 package umu.eadmin.servicios.umu2stork;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.Date;
 import java.util.Enumeration;
@@ -24,6 +26,16 @@ import eu.stork.peps.auth.commons.STORKAuthnRequest;
 import eu.stork.peps.auth.engine.STORKSAMLEngine;
 import eu.stork.peps.exceptions.STORKSAMLEngineException;
 
+import org.opensaml.DefaultBootstrap;
+import org.opensaml.xml.parse.BasicParserPool;
+import org.opensaml.xml.parse.XMLParserException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import com.sun.org.apache.xerces.internal.xni.parser.XMLParseException;
+
 /**
  * Servlet implementation class edupeps
  */
@@ -38,6 +50,7 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 	public static final String APPHEADERSTR = "APP";
 	public static final String SERVICEHEADERSTR = "service";
 	public static final String LANGHEADERSTR = "lang";
+	public static final String SAMLIntREQSTR = "SAMLRequest";
 	
 	private static final String PROPERTIES_APP_PARAM_PREFIX = "proxy.apps";
 	private static final String PROPERTIES_MANDPROP_PARAM_POSTFIX = ".mandatoryattributes";
@@ -81,6 +94,8 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 			.getLogger(umu.eadmin.servicios.umu2stork.EduGAIN2StorkProxy.class
 					.getName());
 
+    private BasicParserPool ppMgr;
+
 
 	/**
 	 * @see HttpServlet#HttpServlet()
@@ -90,6 +105,7 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 		// TODO Auto-generated constructor stub
 		mandattributesxapp = new HashMap<String, String[]>();
 		optattributesxapp = new HashMap<String, String[]>();
+
 
 		try {
 	        	properties = new Properties();
@@ -132,6 +148,10 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 			} catch (IOException e) {
 				throw new Exception("Could not load configuration file " + e.getMessage());
 			}
+
+		// Initialise OpenSAML
+		DefaultBootstrap.bootstrap();
+		this.ppMgr = new BasicParserPool();
 	}
 
 	/**
@@ -201,10 +221,12 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 		i18n.load(ReturnPage.class.getClassLoader().getResourceAsStream("en.properties")); //default
 		
 		UtilesRsa encoder = new UtilesRsa();
-		logger.info("Cert file: " + request.getSession().getServletContext().getRealPath("WEB-INF/classes/" + properties.getProperty(PRIVATE_KEY_FILE_PARAM)).toString());
-		String keyfile = request.getSession().getServletContext().getRealPath("WEB-INF/classes/" + properties.getProperty(PRIVATE_KEY_FILE_PARAM));
-		
-		encoder.readPrivateKey(keyfile);
+
+		// Crypto disabled temporaly
+		//		logger.info("Cert file: " + request.getSession().getServletContext().getRealPath("WEB-INF/classes/" + properties.getProperty(PRIVATE_KEY_FILE_PARAM)).toString());
+		//		String keyfile = request.getSession().getServletContext().getRealPath("WEB-INF/classes/" + properties.getProperty(PRIVATE_KEY_FILE_PARAM));
+		//
+		//		encoder.readPrivateKey(keyfile);
 		
 		out.println(HTML_START);
 		out.println(HTML_HEAD);
@@ -262,13 +284,49 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 			}
 			else
 				langparam="en";
-		{
-			i18n = new Properties();
-			i18n.load(ReturnPage.class.getClassLoader().getResourceAsStream("es.properties"));
+
+
+		/*** SAMLInt ***/
+		// Recover SAML_int request and parse
+		// https://wiki.shibboleth.net/confluence/display/OpenSAML/OSTwoUsrManJavaCreateFromXML
+		String samlreq = request.getParameter(SAMLIntREQSTR);
+		if (samlreq == null) {
+			logger.severe("FATAL ERROR: Missing SAML Int Request!");
+			this.log("FATAL ERROR: Missing SAML Int Request!");
+			closeWithError(out,i18n,"error.proxy.saml.missing");
+			return;
 		}
-		else
-			langparam="en";
-		
+		logger.info("We have a SAMLRequest");
+		byte[] samlreqbase64decoded = Base64.decode(samlreq.getBytes());
+		logger.info(new String(samlreqbase64decoded));
+		InputStream samlreqstream = new ByteArrayInputStream(samlreqbase64decoded);
+		try {
+			Document samlreqdoc = this.ppMgr.parse(samlreqstream);
+			// Element samlelement = samlreqdoc.getDocumentElement();
+
+			// Iterate over the Document
+			NodeList l = samlreqdoc.getChildNodes();
+			for(int n=0; n < l.getLength(); n++)
+			{
+				Node node = l.item(n);
+				out.println(this.printXMLNode(node, 0));
+			}
+
+		} catch (XMLParserException xmlparsee) {
+			logger.severe("Unable to xml parse SAMLint Request)" + xmlparsee);
+			throw new ServletException("ERROR: Unable to xml parse SAMLint Request");
+		}
+		out.println("</BR></BR>Sacar algo por pantalla");
+		// TODO: Eraseme
+		if( true)
+		{
+			closeWithError(out, i18n, "error.return.saml");
+			return;
+		}
+
+
+		/***        ***/
+
 		// Recuperar atributo de país
 		String countryCodeParam = request.getParameter("CountryCode");
 		if (countryCodeParam == null) {
