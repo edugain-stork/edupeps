@@ -169,6 +169,22 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 		out.println(HTML_END);
 	}
 	
+	private String printXMLNode(Node n, int depth)
+	{
+		String result = "";
+		for( int i=0; i < depth; i++)
+			result += "&emsp;";
+		result += n.getNodeName() + ": " + n.getNodeValue();
+		if (n.hasChildNodes())
+		{
+			for (int i=0; i < n.getChildNodes().getLength(); i++)
+			{
+				result += "</BR>" + printXMLNode(n.getChildNodes().item(i), depth + 1);
+			}
+		}
+		return result;
+	}
+
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
 	 *      response)
