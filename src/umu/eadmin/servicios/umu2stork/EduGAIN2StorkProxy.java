@@ -208,7 +208,8 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 		
 		out.println(HTML_START);
 		out.println(HTML_HEAD);
-		out.println("<body style=\"background-image:url(webapp/img/background.png); background-size:scale; background-repeat: no-repeat;background-position: center top\" onload=\"document.createElement('form').submit.call(document.getElementById('myForm'))\">");
+		// AUTO LOAD FORM out.println("<body style=\"background-image:url(webapp/img/background.png); background-size:scale; background-repeat: no-repeat;background-position: center top\" onload=\"document.createElement('form').submit.call(document.getElementById('myForm'))\">");
+		out.println("<body style=\"background-image:url(webapp/img/background.png); background-size:scale; background-repeat: no-repeat;background-position: center top\">");
 
 		// Enumeration <String> params = request.getParameterNames();
 
