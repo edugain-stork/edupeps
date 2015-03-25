@@ -25,9 +25,9 @@ import eu.stork.peps.auth.engine.STORKSAMLEngine;
 import eu.stork.peps.exceptions.STORKSAMLEngineException;
 
 /**
- * Servlet implementation class UMU2StorkProxy
+ * Servlet implementation class edupeps
  */
-@WebServlet("/UMU2StorkProxy")
+@WebServlet("/EduGAIN2StorkProxy")
 public class EduGAIN2StorkProxy extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
@@ -59,7 +59,7 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 	public static final String HTML_END = "</html>";
 	public static final String BODY_START = "<body>";
 	public static final String BODY_END = "</body>";
-	public static final String HTML_HEAD = "<head><title>UMU2StorkProxy SAML Adapter</title></head>";
+	public static final String HTML_HEAD = "<head><title>edupeps SAML Adapter</title></head>";
 	
 	//Attributes
 	private static Properties properties;
@@ -176,7 +176,7 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		logger.info("---- UMU2StorkProxy::UMU2StorkProxy::doPost() ----");
+		logger.info("---- edupeps::EduGAIN2StorkProxy::doPost() ----");
 
 		response.setContentType("text/html");
 		PrintWriter out = response.getWriter();
@@ -217,14 +217,14 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 			jsessionid = cookiesplt[1];
 		} catch (ClassCastException cce) {
 			logger.severe("Unable to recover jsessionid\n" + cce);
-			throw new ServletException("UMU2StorkProxy::DoPost() - Unable to recover jsessionid (InvalidCast)\n" + cce);
+			throw new ServletException("eduGAIN2StorkProxy::DoPost() - Unable to recover jsessionid (InvalidCast)\n" + cce);
 		} catch (NullPointerException npe) {
 			logger.severe("Unable to recover jsessionid\n" + npe);
-			throw new ServletException("UMU2StorkProxy::DoPost() - Unable to recover jsessionid (null)\n" + npe);
+			throw new ServletException("eduGAIN2StorkProxy::DoPost() - Unable to recover jsessionid (null)\n" + npe);
 		} catch(java.lang.IndexOutOfBoundsException iobe)
 		{
 			logger.severe("Unable to recover jsessionid - Malformed cookie\n" + iobe);
-			throw new ServletException("UMU2StorkProxy::DoPost() - Unable to recover jsessionid (IndexOutOfBoundsException)\n" + iobe);		
+			throw new ServletException("eduGAIN2StorkProxy::DoPost() - Unable to recover jsessionid (IndexOutOfBoundsException)\n" + iobe);
 		}
 		
 		// Carga de i18n de otros idiomas
@@ -417,7 +417,7 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 //		}catch(SQLException sqle)
 //		{
 //			logger.severe("Unable to insert jsessionid in DB\n" + sqle);
-//			throw new ServletException("UMU2StorkProxy::DoPost() - Unable to insert jsessionid in DB\n" + sqle);
+//			throw new ServletException("eduGAIN2StorkProxy::DoPost() - Unable to insert jsessionid in DB\n" + sqle);
 //		}
 
 
