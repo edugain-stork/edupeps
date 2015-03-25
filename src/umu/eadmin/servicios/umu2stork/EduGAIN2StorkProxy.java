@@ -228,10 +228,18 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 		String jsessionid = "";
 		try {
 			String cookie = headerparammap.get("cookie");
-			String []cookiesplt = cookie.split("=");
-			if (cookiesplt.length < 1)
-				throw new ServletException("Unable to recover jsessionid, regex problem over: " + cookie);
-			jsessionid = cookiesplt[1];
+			if (cookie != null)
+			{
+				logger.info("Cookie: " + cookie);
+				String []cookiesplt = cookie.split("=");
+				if (cookiesplt.length < 1)
+					throw new ServletException("Unable to recover jsessionid, regex problem over: " + cookie);
+				jsessionid = cookiesplt[1];
+			}
+			else
+			{
+				logger.warning("No cookie found!!");
+			}
 		} catch (ClassCastException cce) {
 			logger.severe("Unable to recover jsessionid\n" + cce);
 			throw new ServletException("eduGAIN2StorkProxy::DoPost() - Unable to recover jsessionid (InvalidCast)\n" + cce);
