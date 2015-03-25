@@ -221,12 +221,6 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 		i18n.load(ReturnPage.class.getClassLoader().getResourceAsStream("en.properties")); //default
 		
 		UtilesRsa encoder = new UtilesRsa();
-
-		// Crypto disabled temporaly
-		//		logger.info("Cert file: " + request.getSession().getServletContext().getRealPath("WEB-INF/classes/" + properties.getProperty(PRIVATE_KEY_FILE_PARAM)).toString());
-		//		String keyfile = request.getSession().getServletContext().getRealPath("WEB-INF/classes/" + properties.getProperty(PRIVATE_KEY_FILE_PARAM));
-		//
-		//		encoder.readPrivateKey(keyfile);
 		
 		out.println(HTML_START);
 		out.println(HTML_HEAD);
@@ -316,15 +310,15 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 			logger.severe("Unable to xml parse SAMLint Request)" + xmlparsee);
 			throw new ServletException("ERROR: Unable to xml parse SAMLint Request");
 		}
-		out.println("</BR></BR>Sacar algo por pantalla");
+		out.println("</BR></BR>");
+		
+		// Here we should try to extract the attributes requested in SAMLInt
 		// TODO: Eraseme
 		if( true)
 		{
 			closeWithError(out, i18n, "error.return.saml");
 			return;
 		}
-
-
 		/***        ***/
 
 		// Recuperar atributo de país
@@ -337,57 +331,15 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 		}
 		logger.info("CountryCode: " + countryCodeParam);
 		
-		// Recuperando atributo de APP
-		String appparam = java.net.URLDecoder.decode(encoder.decode(request.getParameter(APPHEADERSTR)), "UTF-8");
-		if  (appparam == null || appparam=="null")
-		{
-			logger.severe("FATAL ERROR: Missing appname, abort!");
-			this.log("FATAL ERROR: Missing appname, abort!");
-			closeWithError(out,i18n,"error.proxy.appextra");
-			return;
-		}
-		logger.info("APP: " + appparam);
-		
-		String dataparam = java.net.URLDecoder.decode(encoder.decode(request.getParameter(DATAHEADERSTR)), "UTF-8");
-		if (dataparam == null)
-		{
-			logger.severe("FATAL ERROR: Missing DATA, abort!");
-			this.log("FATAL ERROR: Missing DATA, abort!");
-			closeWithError(out,i18n,"error.proxy.data");
-			return;
-		}
-		String dataparamdecoded = dataparam;
-		logger.info("DATA: " + dataparam);
-		
-		String returnURLparam = java.net.URLDecoder.decode(encoder.decode(request.getParameter(URLHEADERSTR)), "UTF-8");
-		if (returnURLparam == null)
-		{
-			logger.severe("FATAL ERROR: Missing URL, abort!");
-			this.log("FATAL ERROR: Missing URL, abort!");
-			closeWithError(out,i18n,"error.proxy.url");
-			return;
-		}
-		logger.info("URL: " + returnURLparam);
-		
-		String serviceparam = java.net.URLDecoder.decode(encoder.decode(request.getParameter(SERVICEHEADERSTR)), "UTF-8");
-		if (serviceparam==null)
-		{
-			logger.severe("FATAL ERROR: Missing service, abort!");
-			this.log("FATAL ERROR: Missing service, abort!");
-			closeWithError(out,i18n,"error.proxy.service");
-			return;
-		}
-		logger.info("URL: " + serviceparam);
-		
 	
 		
 		logger.info("Creando Personal Attribute List para consulta");
 		PersonalAttributeList pal = new PersonalAttributeList();
 		PersonalAttribute pa = null;
-	
-		//Seleccion de atributos basado en service url
+
+		// Serviceparam indicates configuration var to select the attributes to request. To be removed when SAMLint request is fine
+		String serviceparam = "eLearning";
 		boolean appfound = false;
-		// Buscar la app con la url indicada
 		for (String app:optattributesxapp.keySet()) {
 			logger.info("Checking: " + properties.getProperty(PROPERTIES_APP_PARAM_PREFIX + "." + app + PROPERTIES_APP_URL_POSTFIX) + " vs " + serviceparam + "</BR>");
 			if (properties.getProperty(PROPERTIES_APP_PARAM_PREFIX + "." + app + PROPERTIES_APP_URL_POSTFIX).equals(serviceparam))
@@ -441,7 +393,7 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 
 		final STORKAuthnRequest authRequest = new STORKAuthnRequest();
 
-		logger.info("Generando STORK Auth Request");
+		logger.info("Generating STORK Auth Request");
 
 		authRequest.setDestination(destinationURL);
 		authRequest.setProviderName(spName);
