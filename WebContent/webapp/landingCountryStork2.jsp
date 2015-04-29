@@ -20,12 +20,9 @@
     <h2>Seleccione su pa&iacute;s</h2>
     <% } %>
     <br>
-    <form id="myForm" name="myForm" action='https://stork2.um.es/UMU2StorkProxy/UMU2StorkProxy' method='post'>
-      <input type='hidden' name='DATA' value=<%= request.getParameter("DATA") %>>
-      <input type='hidden' name='APP' value=<%= request.getParameter("APP") %>>
-      <input type='hidden' name='URL' value=<%= request.getParameter("URL") %>>
-      <input type='hidden' name='lang' value=<%= request.getParameter("lang") %>>
-      <input type='hidden' name='service' value=<%= request.getParameter("service") %>>
+    <form id="myForm" name="myForm" action='http://stork:8080/edupeps/EduGAIN2StorkProxy' method='post'>
+      <input type='hidden' name='lang' value='<%= request.getParameter("lang") %>'>
+      <input type='hidden' name='SAMLRequest' value='<%= request.getParameter("SAMLRequest") %>'>
       <center>
 	<input type="radio" name="CountryCode" value="ES" checked="checked"><img src="img/Flags/Spain.png" width=100><br/>
 	<input type="radio" name="CountryCode" value="IT"><img src="img/Flags/Italy.png" width=100><br/>
