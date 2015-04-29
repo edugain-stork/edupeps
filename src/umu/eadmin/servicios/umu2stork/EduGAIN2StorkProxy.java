@@ -313,12 +313,8 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 		out.println("</BR></BR>");
 		
 		// Here we should try to extract the attributes requested in SAMLInt
-		// TODO: Eraseme
-		if( true)
-		{
-			closeWithError(out, i18n, "error.return.saml");
-			return;
-		}
+
+
 		/***        ***/
 
 		// Recuperar atributo de país
