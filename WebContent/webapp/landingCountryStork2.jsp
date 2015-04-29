@@ -20,7 +20,7 @@
     <h2>Seleccione su pa&iacute;s</h2>
     <% } %>
     <br>
-    <form id="myForm" name="myForm" action='http://stork:8080/edupeps/EduGAIN2StorkProxy' method='post'>
+    <form id="myForm" name="myForm" action='http://edupeps.inf.um.es:8080/edupeps/EduGAIN2StorkProxy' method='post'>
       <input type='hidden' name='lang' value='<%= request.getParameter("lang") %>'>
       <input type='hidden' name='SAMLRequest' value='<%= request.getParameter("SAMLRequest") %>'>
       <center>
@@ -29,6 +29,7 @@
 	<input type="radio" name="CountryCode" value="SE"><img src="img/Flags/Sweden.png" width=100><br/>
 	<input type="radio" name="CountryCode" value="PT"><img src="img/Flags/Portugal.png" width=100><br/>
 	<input type="radio" name="CountryCode" value="SI"><img src="img/Flags/Slovenia.png" width=100><br/>
+	<input type="radio" name="CountryCode" value="REMOTE">REMOTE eduGAIN Test<br/>
 	<% if (lang.equals("en")) { %>
 	<button type="submit" value="Accept" method="post"><img src="img/send.png" width=25 border=3></button>
 	Send Form
