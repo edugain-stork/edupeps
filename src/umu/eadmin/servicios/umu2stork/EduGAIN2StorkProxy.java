@@ -441,7 +441,7 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 
 //		// SAVE SESSION
 		try {
-			this.proxyH2db.saveSession(jsessionid, dataparamdecoded, appparam, returnURLparam, serviceparam, langparam);
+			this.proxyH2db.saveSession(jsessionid, "", "", "", serviceparam, langparam);
 		}
 		catch (Exception e)
 		{
