@@ -429,6 +429,7 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 			out.println("<form id='myForm' name='myForm' action='" + destinationURL + "' method='post'>");
 			out.println("<input type='hidden' name='country' value='" + countryCodeParam + "'>");
 			out.println("<input type='hidden' name='SAMLRequest' value='"+ authReqSTORKString + "'>");
+			out.println("<center><button type='submit' value='Send' method='post'><img src='webapp/img/send.png' width=25 border=3></button></center>");
 			out.println("</form>");
 
 		} catch (STORKSAMLEngineException e) {
