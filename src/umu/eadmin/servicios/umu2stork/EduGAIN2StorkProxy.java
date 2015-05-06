@@ -57,6 +57,8 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 	private static final String PROPERTIES_OPTPROP_PARAM_POSTFIX = ".optionalattributes";
 	private static final String PROPERTIES_APP_URL_POSTFIX = ".url";
 	
+	
+	private static final String PROPERTIES_PROXY_URL_PARAM = "proxy.url";
 	private static final String PROPERTIES_PEPS_URL_PARAM = "proxy.peps";
 	private static final String PROPERTIES_RETURNPAGE_URL_PARAM = "proxy.return";
 	private static final String PROPERTIES_SPNAME_PARAM = "proxy.spName";
@@ -334,7 +336,7 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 		PersonalAttribute pa = null;
 
 		// Serviceparam indicates configuration var to select the attributes to request. To be removed when SAMLint request is fine
-		String serviceparam = "eLearning";
+		String serviceparam = properties.getProperty(PROPERTIES_PROXY_URL_PARAM);
 		boolean appfound = false;
 		for (String app:optattributesxapp.keySet()) {
 			logger.info("Checking: " + properties.getProperty(PROPERTIES_APP_PARAM_PREFIX + "." + app + PROPERTIES_APP_URL_POSTFIX) + " vs " + serviceparam + "</BR>");
