@@ -25,6 +25,7 @@ import eu.stork.peps.auth.commons.STORKAuthnResponse;
 import eu.stork.peps.auth.engine.STORKSAMLEngine;
 import eu.stork.peps.exceptions.STORKSAMLEngineException;
 
+import org.apache.commons.codec.binary.Base64;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,10 +39,8 @@ public class ReturnPage extends HttpServlet {
 	
     public static final String HTML_START="<html>";
     public static final String HTML_END="</body></html>";
-    public static final String HTML_HEAD = "<head><title>UMU2StorkProxy SAML Adapter</title></head>";
-    
-    public static final String PRIVATE_KEY_FILE_PARAM = "proxy.privatekey";
-    
+    public static final String HTML_HEAD = "<head><title>edupeps SAML Adapter</title></head>";
+
     private static Properties properties;
     private static Properties i18n;
         
@@ -116,7 +115,7 @@ public class ReturnPage extends HttpServlet {
 		out.println("<body style=\"background-image:url(webapp/img/background.png); background-size:scale; background-repeat: no-repeat;background-position: center top\">");
 
 			
-		logger.info("---- UMU2StorkProxy::ReturnPage::doPost() ----");
+		logger.info("---- edupeps::ReturnPage::doPost() ----");
 		Map<String, String> map = new HashMap<String, String>();
 		Enumeration<String> headerNames = request.getHeaderNames();
 		while (headerNames.hasMoreElements()) {
@@ -260,11 +259,6 @@ public class ReturnPage extends HttpServlet {
 			else 
 			{
 
-				UtilesRsa encoder = new UtilesRsa();
-				logger.info("Cert file: " + request.getSession().getServletContext().getRealPath("WEB-INF/classes/" + properties.getProperty(PRIVATE_KEY_FILE_PARAM)).toString());
-				String keyfile = request.getSession().getServletContext().getRealPath("WEB-INF/classes/" + properties.getProperty(PRIVATE_KEY_FILE_PARAM));
-
-				encoder.readPrivateKey(keyfile);
 				// Generate output form
 				out.println("<center><h1>" + i18n.getProperty("info.return.cas") + "</h1></br><h2>" + new Date().toString() + "</h2></center>");
 				out.println("<form id='myForm' name='myForm' action='" + returnURLparam + "' method='post'>");
@@ -344,7 +338,7 @@ public class ReturnPage extends HttpServlet {
 				logger.info("Parametros: " + parametros.toString());
 
 				// Parametros a form
-				out.println("<input type='hidden' name='DATA' value='"+ encoder.encode(parametros.toString()) + "'>");
+				out.println("<input type='hidden' name='DATA' value='"+ Base64.encodeBase64String(parametros.toString().getBytes()) + "'>");
 				out.println("<input type='hidden' name='" + EduGAIN2StorkProxy.SERVICEHEADERSTR + "' value='"+ serviceparam + "'>");
 
 				//out.println("<center><input type='submit' value='Send' method='post'></center>");
