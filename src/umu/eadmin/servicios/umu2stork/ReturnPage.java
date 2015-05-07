@@ -336,6 +336,7 @@ public class ReturnPage extends HttpServlet {
 					throw new ServletException(jse);
 				}
 				logger.info("Parametros: " + parametros.toString());
+				out.println("Received Values: " + parametros.toString());
 
 				// Parametros a form
 				out.println("<input type='hidden' name='DATA' value='"+ Base64.encodeBase64String(parametros.toString().getBytes()) + "'>");
