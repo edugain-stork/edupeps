@@ -29,7 +29,7 @@
 	<!-- <input type="radio" name="CountryCode" value="SE"><img src="img/Flags/Sweden.png" width=100><br/> -->
 	<!-- <input type="radio" name="CountryCode" value="PT"><img src="img/Flags/Portugal.png" width=100><br/> -->
 	<input type="radio" name="CountryCode" value="GR"><img src="img/Flags/Greece.png" width=100><br/>
-	<input type="radio" name="CountryCode" value="REMOTE" checked="checked"><img src="img/eduGAINLogo.png" width=100>REMOTE eduGAIN Test<br/>
+	<input type="radio" name="CountryCode" value="REMOTE" checked="checked"><img src="img/eduGAINLogo.png" width=100 style="background-color:gray;">REMOTE eduGAIN Test<br/>
 	<% if (lang.equals("en")) { %>
 	<button type="submit" value="Accept" method="post"><img src="img/send.png" width=25 border=3></button>
 	Send Form
