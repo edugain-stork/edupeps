@@ -1,5 +1,6 @@
 package umu.eadmin.servicios.umu2stork;
 
+import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.Properties;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -261,7 +264,20 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 		logger.info("We have a SAMLRequest");
 		byte[] samlreqbase64decoded = Base64.decode(samlreq.getBytes());
 		logger.info(new String(samlreqbase64decoded));
-		InputStream samlreqstream = new ByteArrayInputStream(samlreqbase64decoded);
+
+        byte[] samlreqinflated = null;
+        try {
+            //try DEFLATE (rfc 1951) -- according to SAML spec
+            samlreqinflated = inflate(samlreqbase64decoded, true);
+            logger.info(new String(samlreqinflated));
+	    } catch (Exception e) {
+            logger.severe ("FATAL ERROR: SAMLRequest could not be inflated");
+            this.log("sFATAL ERROR: SAMLRequest could not be inflated");
+            closeWithError(out,i18n,"error.proxy.saml.inflate");
+        }
+
+        //InputStream samlreqstream = new ByteArrayInputStream(samlreqbase64decoded);
+		InputStream samlreqstream = new ByteArrayInputStream(samlreqinflated);
 		try {
 			Document samlreqdoc = this.ppMgr.parse(samlreqstream);
 			// Element samlelement = samlreqdoc.getDocumentElement();
@@ -432,6 +448,40 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 		out.println(HTML_END);
 		out.close();
 	}
+
+    private static byte[] inflate(byte[] bytes, boolean nowrap) throws Exception {
+        Inflater decompressor = null;
+        InflaterInputStream decompressorStream = null;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            decompressor = new Inflater(nowrap);
+            decompressorStream = new InflaterInputStream(new ByteArrayInputStream(bytes), decompressor);
+            byte[] buf = new byte[1024];
+            int count;
+            while ((count = decompressorStream.read(buf)) != -1) {
+                out.write(buf, 0, count);
+            }
+            return out.toByteArray();
+        } finally {
+            if (decompressor != null) {
+                decompressor.end();
+            }
+            try {
+                if (decompressorStream != null) {
+                    decompressorStream.close();
+                }
+            } catch (IOException ioe) {
+                /*ignore*/
+            }
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException ioe) {
+                /*ignore*/
+            }
+        }
+    }
 
 	private void closeWithError(PrintWriter out, Properties i18n, String key)
 	{
