@@ -1,0 +1,83 @@
+<EntityDescriptor entityID="http://edupeps.inf.um.es">
+    <IDPSSODescriptor protocolSupportEnumeration="urn:mace:shibboleth:1.0 urn:oasis:names:tc:SAML:1.1:protocol urn:oasis:names:tc:SAML:2.0:protocol">
+        <Extensions>
+            <shibmd:Scope regexp="false">edupeps.inf.um.es</shibmd:Scope>
+        </Extensions>
+        <KeyDescriptor>
+            <ds:KeyInfo>
+                <ds:X509Data>
+                    <ds:X509Certificate>
+MIIDJzCCAg8CBEuonbIwDQYJKoZIhvcNAQEFBQAwWDELMAkGA1UEBhMCRVMxDjAM
+BgNVBAgMBVNwYWluMQ8wDQYDVQQHDAZNYWRyaWQxDjAMBgNVBAoMBUluZHJhMRgw
+FgYDVQQDDA9sb2NhbC1kZW1vLWNlcnQwHhcNMTAwMzIzMTA1MzM4WhcNMTAwNjAx
+MTA1MzM4WjBYMQswCQYDVQQGEwJFUzEOMAwGA1UECAwFU3BhaW4xDzANBgNVBAcM
+Bk1hZHJpZDEOMAwGA1UECgwFSW5kcmExGDAWBgNVBAMMD2xvY2FsLWRlbW8tY2Vy
+dDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAJfdQ1/mkM9sqqabri8q
+qqX4s0J6UEEXyF+0AjLU8RC4WMeYFSZ5tfwnyLsoXY0/9bZLXnBxSibQYaf4SnpZ
+JhlVA4sU0d8qyEWA2OvXGDCm7uspGHG3CRQa7fpHsmHmfIAqho9XDlwpwJdx5gK4
+Edc6aArcMQfjqMhy1s1n6Of1i1lMGGsGrERIRY7biIQu/8nITbHH18sUAZMG1u/Q
+0Avi9O3LWyswHXUouZ818fWwG6xru2N5y6vtVO/SL3doRSdqYkEms93TgxTtaKg8
+XNe24zhNTte6nvWLaKesi2KzZGC57HU47HBFEs8NWk7z9BDf8uLyPz9VDahwVKzM
+to8CAwEAATANBgkqhkiG9w0BAQUFAAOCAQEAgpuReXQ7Dsfdoe5zzy2F6kn1qqtM
+kRGsBPKnDFCI/GkIZpBiqlfwdh6sipnFKWfKEDlPKN1kEhbkDR2GA1Cp4F4ZSL/H
+umZMpWabRhDxhTPvHIFbbShPDJY93+jw/yQeaWgMuhw3WzdH9TrVoRZH0Q7sG1pI
+Jo5/6IogIZwFvJHT/NDutKmurU6Lw8Vnde8PfnQd+FTEhz0SEGyKkWjAuhGbJfse
+By/z3L+MJq1rdSQ9PF7wXDvWNzJqyaNBUWWBV1TskvkNZXcaguroVPy2XhA1aixl
+AajWEXLk6Uuj5UYqalrV/reNYvDvY0BV2CIn51r7Ppm8IFVTk8mYfX8/jw==
+
+                    </ds:X509Certificate>
+                </ds:X509Data>
+            </ds:KeyInfo>
+        </KeyDescriptor>
+        <NameIDFormat>urn:mace:shibboleth:1.0:nameIdentifier</NameIDFormat>
+        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</NameIDFormat>
+        <!--
+        <ArtifactResolutionService Binding="urn:oasis:names:tc:SAML:1.0:bindings:SOAP-binding" Location="http://edupeps.inf.um.es:8080/edupeps//dp/profile/SAML1/SOAP/ArtifactResolution" index="1"/>
+        <ArtifactResolutionService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="http://edupeps.inf.um.es:8080/edupeps/idp/profile/SAML2/SOAP/ArtifactResolution" index="2"/>
+        <SingleSignOnService Binding="urn:mace:shibboleth:1.0:profiles:AuthnRequest" Location="http://edupeps.inf.um.es:8080/edupeps/idp/profile/Shibboleth/SSO"/>
+        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign" Location="http://edupeps.inf.um.es:8080/edupeps/idp/profile/SAML2/POST-SimpleSign/SSO"/>
+        -->
+        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="http://edupeps.inf.um.es:8080/edupeps/EduGAIN2StorkProxy"/>
+        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="http://edupeps.inf.um.es:8080/edupeps/EduGAIN2StorkProxy"/>
+    </IDPSSODescriptor>
+    <AttributeAuthorityDescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:1.1:protocol urn:oasis:names:tc:SAML:2.0:protocol">
+        <Extensions>
+            <shibmd:Scope regexp="false">edupeps.inf.um.es</shibmd:Scope>
+        </Extensions>
+        <KeyDescriptor>
+            <ds:KeyInfo>
+                <ds:X509Data><ds:X509Certificate>
+MIIDJzCCAg8CBEuonbIwDQYJKoZIhvcNAQEFBQAwWDELMAkGA1UEBhMCRVMxDjAM
+BgNVBAgMBVNwYWluMQ8wDQYDVQQHDAZNYWRyaWQxDjAMBgNVBAoMBUluZHJhMRgw
+FgYDVQQDDA9sb2NhbC1kZW1vLWNlcnQwHhcNMTAwMzIzMTA1MzM4WhcNMTAwNjAx
+MTA1MzM4WjBYMQswCQYDVQQGEwJFUzEOMAwGA1UECAwFU3BhaW4xDzANBgNVBAcM
+Bk1hZHJpZDEOMAwGA1UECgwFSW5kcmExGDAWBgNVBAMMD2xvY2FsLWRlbW8tY2Vy
+dDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAJfdQ1/mkM9sqqabri8q
+qqX4s0J6UEEXyF+0AjLU8RC4WMeYFSZ5tfwnyLsoXY0/9bZLXnBxSibQYaf4SnpZ
+JhlVA4sU0d8qyEWA2OvXGDCm7uspGHG3CRQa7fpHsmHmfIAqho9XDlwpwJdx5gK4
+Edc6aArcMQfjqMhy1s1n6Of1i1lMGGsGrERIRY7biIQu/8nITbHH18sUAZMG1u/Q
+0Avi9O3LWyswHXUouZ818fWwG6xru2N5y6vtVO/SL3doRSdqYkEms93TgxTtaKg8
+XNe24zhNTte6nvWLaKesi2KzZGC57HU47HBFEs8NWk7z9BDf8uLyPz9VDahwVKzM
+to8CAwEAATANBgkqhkiG9w0BAQUFAAOCAQEAgpuReXQ7Dsfdoe5zzy2F6kn1qqtM
+kRGsBPKnDFCI/GkIZpBiqlfwdh6sipnFKWfKEDlPKN1kEhbkDR2GA1Cp4F4ZSL/H
+umZMpWabRhDxhTPvHIFbbShPDJY93+jw/yQeaWgMuhw3WzdH9TrVoRZH0Q7sG1pI
+Jo5/6IogIZwFvJHT/NDutKmurU6Lw8Vnde8PfnQd+FTEhz0SEGyKkWjAuhGbJfse
+By/z3L+MJq1rdSQ9PF7wXDvWNzJqyaNBUWWBV1TskvkNZXcaguroVPy2XhA1aixl
+AajWEXLk6Uuj5UYqalrV/reNYvDvY0BV2CIn51r7Ppm8IFVTk8mYfX8/jw==
+
+                    </ds:X509Certificate>
+                </ds:X509Data>
+            </ds:KeyInfo>
+        </KeyDescriptor>
+        <AttributeService Binding="urn:oasis:names:tc:SAML:1.0:bindings:SOAP-binding" Location="http://edupeps.inf.um.es:8080/edupeps/EduGAIN2StorkProxy/AttributeQuery"/>
+        <AttributeService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="http://edupeps.inf.um.es:8080/edupeps/EduGAIN2StorkProxy/AttributeQuery"/>
+        <NameIDFormat>urn:mace:shibboleth:1.0:nameIdentifier</NameIDFormat>
+        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</NameIDFormat>
+    </AttributeAuthorityDescriptor>
+    <Organization>
+        <OrganizationName xml:lang="en">eduPEPS</OrganizationName>
+        <OrganizationDisplayName xml:lang="en">eduPEPS</OrganizationDisplayName></OrganizationDisplayName>
+        <OrganizationURL xml:lang="en">http://edupeps.inf.um.es/</OrganizationURL>
+    </Organization>
+</EntityDescriptor>
+
