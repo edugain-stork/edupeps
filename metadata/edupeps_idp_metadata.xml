@@ -37,8 +37,8 @@ AajWEXLk6Uuj5UYqalrV/reNYvDvY0BV2CIn51r7Ppm8IFVTk8mYfX8/jw==
         <SingleSignOnService Binding="urn:mace:shibboleth:1.0:profiles:AuthnRequest" Location="http://edupeps.inf.um.es:8080/edupeps/idp/profile/Shibboleth/SSO"/>
         <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign" Location="http://edupeps.inf.um.es:8080/edupeps/idp/profile/SAML2/POST-SimpleSign/SSO"/>
         -->
-        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="http://edupeps.inf.um.es:8080/edupeps/EduGAIN2StorkProxy"/>
-        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="http://edupeps.inf.um.es:8080/edupeps/EduGAIN2StorkProxy"/>
+        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="http://edupeps.inf.um.es:8080/edupeps/webapp/landingCountryStork2.jsp"/>
+        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="http://edupeps.inf.um.es:8080/edupeps/webapp/landingCountryStork2.jsp"/>
     </IDPSSODescriptor>
     <AttributeAuthorityDescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:1.1:protocol urn:oasis:names:tc:SAML:2.0:protocol">
         <Extensions>
