@@ -76,7 +76,7 @@ AajWEXLk6Uuj5UYqalrV/reNYvDvY0BV2CIn51r7Ppm8IFVTk8mYfX8/jw==
     </AttributeAuthorityDescriptor>
     <Organization>
         <OrganizationName xml:lang="en">eduPEPS</OrganizationName>
-        <OrganizationDisplayName xml:lang="en">eduPEPS</OrganizationDisplayName></OrganizationDisplayName>
+        <OrganizationDisplayName xml:lang="en">eduPEPS</OrganizationDisplayName>
         <OrganizationURL xml:lang="en">http://edupeps.inf.um.es/</OrganizationURL>
     </Organization>
 </EntityDescriptor>
