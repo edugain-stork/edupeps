@@ -6,10 +6,12 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <% if (lang.equals("en")) { %>
-    <title>Country Selection Form</title>
+    <% if (lang == null)
+            lang = "en";
+       if (lang.equals("en")) { %>
+            <title>Country Selection Form</title>
     <% } else { %>
-    <title>Formulario de selecci&oacute;n de nacionalidad</title>
+            <title>Formulario de selecci&oacute;n de nacionalidad</title>
     <% } %>
   </head>
   <!--<body onload="document.createElement('form').submit.call(document.getElementById('myForm'))"> -->
@@ -21,7 +23,7 @@
     <% } %>
     <br>
     <form id="myForm" name="myForm" action='http://edupeps.inf.um.es:8080/edupeps/EduGAIN2StorkProxy' method='post'>
-      <input type='hidden' name='lang' value='<%= request.getParameter("lang") %>'>
+      <input type='hidden' name='lang' value='<%= lang %>'>
       <input type='hidden' name='SAMLRequest' value='<%= request.getParameter("SAMLRequest") %>'>
       <center>
 	<input type="radio" name="CountryCode" value="ES"><img src="img/Flags/Spain.png" width=100><br/>
