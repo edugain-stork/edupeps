@@ -592,10 +592,25 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 			closeWithError(out,i18n,"error.proxy.saml.missing");
 			return;
 		}
-		logger.info("We have a SAMLRequest");
-		byte[] samlreqbase64decoded = Base64.decode(samlreq.getBytes());
-		logger.info(new String(samlreqbase64decoded));
-		InputStream samlreqstream = new ByteArrayInputStream(samlreqbase64decoded);
+
+                logger.info("We have a SAMLRequest");
+                logger.info("TRAZA\n samlreq="+samlreq);
+                byte[] samlreqbase64decoded = Base64.decode(samlreq.getBytes("UTF-8"));
+                logger.info("TRAZA\n samlreqbase64decoded="+ new String(samlreqbase64decoded));
+
+                byte[] samlreqinflated = null;
+                try {
+                    //try DEFLATE (rfc 1951) -- according to SAML spec
+                    samlreqinflated = inflate(samlreqbase64decoded, true);
+                    logger.info("TRAZA\n samlreqinflated="+ new String(samlreqinflated));
+                } catch (Exception e) {
+                    logger.severe ("FATAL ERROR: SAMLRequest could not be inflated");
+                    this.log("sFATAL ERROR: SAMLRequest could not be inflated");
+                    closeWithError(out,i18n,"error.proxy.saml.inflate");
+                }
+
+                //InputStream samlreqstream = new ByteArrayInputStream(samlreqbase64decoded);
+                InputStream samlreqstream = new ByteArrayInputStream(samlreqinflated);
 		try {
 			Document samlreqdoc = this.ppMgr.parse(samlreqstream);
 			// Element samlelement = samlreqdoc.getDocumentElement();
