@@ -336,18 +336,18 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 		}
 
                 logger.info("We have a SAMLRequest");
-                logger.info("TRAZA\n samlreq="+samlreq);
+                logger.info("samlreq="+samlreq);
                 byte[] samlreqbase64decoded = Base64.decode(samlreq.getBytes("UTF-8"));
-                logger.info("TRAZA\n samlreqbase64decoded="+ new String(samlreqbase64decoded));
+                logger.info("samlreqbase64decoded="+ new String(samlreqbase64decoded));
 
                 byte[] samlreqinflated = null;
                 try {
                     //try DEFLATE (rfc 1951) -- according to SAML spec
                     samlreqinflated = inflate(samlreqbase64decoded, true);
-                    logger.info("TRAZA\n samlreqinflated="+ new String(samlreqinflated));
+                    logger.info("samlreqinflated="+ new String(samlreqinflated));
                 } catch (Exception e) {
                     logger.severe ("FATAL ERROR: SAMLRequest could not be inflated");
-                    this.log("sFATAL ERROR: SAMLRequest could not be inflated");
+                    this.log("FATAL ERROR: SAMLRequest could not be inflated");
                     closeWithError(out,i18n,"error.proxy.saml.inflate");
                 }
 
@@ -496,6 +496,7 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 		}
 
 //		// SAVE SESSION
+        // saveSession(String jsessionid, String uuid, String appname, String url, String service, String lang)
 		try {
 			this.proxyH2db.saveSession(jsessionid, "", "", "", serviceparam, langparam);
 		}
