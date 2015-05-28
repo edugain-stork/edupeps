@@ -36,6 +36,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.NamedNodeMap;
 
 import com.sun.org.apache.xerces.internal.xni.parser.XMLParseException;
 
@@ -353,18 +354,22 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 
                 //InputStream samlreqstream = new ByteArrayInputStream(samlreqbase64decoded);
                 InputStream samlreqstream = new ByteArrayInputStream(samlreqinflated);
+
 		try {
-			Document samlreqdoc = this.ppMgr.parse(samlreqstream);
-			// Element samlelement = samlreqdoc.getDocumentElement();
-
-			// Iterate over the Document
-			NodeList l = samlreqdoc.getChildNodes();
-			for(int n=0; n < l.getLength(); n++)
+			Document samlreqdoc = ppMgr.parse(samlreqstream);
+			Element samlelement = samlreqdoc.getDocumentElement();
+			NamedNodeMap attrmap = samlelement.getAttributes();
+			for( int i=0; i < attrmap.getLength(); i++)
 			{
-				Node node = l.item(n);
-				out.println(this.printXMLNode(node, 0));
-			}
-
+                Node n = attrmap.item(i);
+                if (n.getNodeName().equals("AssertionConsumerServiceURL"))
+                {
+                    logger.info("Esta es la assertion url:" + n.getNodeValue());
+                    this.returnPageUrl = n.getNodeValue();
+                }
+                out.println(" " + attrmap.item(i));
+            }
+            out.println(attrmap.toString());
 		} catch (XMLParserException xmlparsee) {
 			logger.severe("Unable to xml parse SAMLint Request)" + xmlparsee);
 			throw new ServletException("ERROR: Unable to xml parse SAMLint Request");
@@ -498,7 +503,7 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 //		// SAVE SESSION
         // saveSession(String jsessionid, String uuid, String appname, String url, String service, String lang)
 		try {
-			this.proxyH2db.saveSession(jsessionid, "", "", "", serviceparam, langparam);
+			this.proxyH2db.saveSession(jsessionid, "", "", this.returnPageUrl, serviceparam, langparam);
 		}
 		catch (Exception e)
 		{
