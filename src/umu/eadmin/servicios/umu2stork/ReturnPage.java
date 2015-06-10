@@ -235,7 +235,8 @@ public class ReturnPage extends HttpServlet {
 			else 
 			{
 				// Generate output form
-				out.println("<center><h1>" + i18n.getProperty("info.return.cas") + "</h1></br><h2>" + new Date().toString() + "</h2></center>");
+                out.println("<center><h1>" + i18n.getProperty("info.return.form") + "</h1></br><h2>" + new Date().toString()
+                        + "</h2></center>");
 				out.println("<form id='myForm' name='myForm' action='" + returnURLparam + "' method='post'>");
 
 				// Parametros a form
