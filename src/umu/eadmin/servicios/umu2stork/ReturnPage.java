@@ -232,29 +232,8 @@ public class ReturnPage extends HttpServlet {
 				closeWithError(out, i18n, "error.return.saml");
 				return;
 			}
-		}
-		
-		// GENERAR POST AL CAS
-		if (engine != null)
-		{		
-			try {
-				//validate SAML Token
-				authnResponse = engine.validateSTORKAuthnResponse(decSamlToken, (String) request.getRemoteHost());
-				logger.info("STORKAuthnResponse Id: " + authnResponse.getSamlId());
-				logger.info("Base64 SAML Response: " + new String(authnResponse.getTokenSaml()));
-				
-				
-				//response = engine.validateSTORKAttrQueryResponse(decSamlToken, (String) request.getRemoteHost());
-			} catch(STORKSAMLEngineException e){			
-				logger.severe("Could not validate token for Saml Response: \n"+ e.getErrorMessage());
-			}
-			
-			if(authnResponse.isFail()){
-				logger.severe("Saml Response is fail:\n"+ authnResponse.getMessage());						
-			}
 			else 
 			{
-
 				// Generate output form
 				out.println("<center><h1>" + i18n.getProperty("info.return.cas") + "</h1></br><h2>" + new Date().toString() + "</h2></center>");
 				out.println("<form id='myForm' name='myForm' action='" + returnURLparam + "' method='post'>");
