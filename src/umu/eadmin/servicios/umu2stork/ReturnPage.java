@@ -1,6 +1,8 @@
 package umu.eadmin.servicios.umu2stork;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.Date;
 import java.util.Enumeration;
@@ -16,6 +18,27 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
+import org.opensaml.Configuration;
+import org.opensaml.DefaultBootstrap;
+import org.opensaml.common.SAMLObjectBuilder;
+import org.opensaml.saml2.core.Assertion;
+import org.opensaml.saml2.core.Issuer;
+import org.opensaml.saml2.core.Response;
+import org.opensaml.xml.XMLObject;
+import org.opensaml.xml.XMLObjectBuilderFactory;
+import org.opensaml.xml.io.Marshaller;
+import org.opensaml.xml.io.MarshallingException;
+import org.opensaml.xml.io.Unmarshaller;
+import org.opensaml.xml.io.UnmarshallerFactory;
+import org.opensaml.xml.io.UnmarshallingException;
+import org.opensaml.xml.parse.BasicParserPool;
+import org.opensaml.xml.parse.XMLParserException;
+import org.opensaml.xml.signature.Signature;
+import org.opensaml.xml.util.XMLHelper;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 
 import eu.stork.peps.auth.commons.AttributeUtil;
 import eu.stork.peps.auth.commons.IPersonalAttributeList;
@@ -239,18 +262,119 @@ public class ReturnPage extends HttpServlet {
                         + "</h2></center>");
 				out.println("<form id='myForm' name='myForm' action='" + returnURLparam + "' method='post'>");
 
-				// Parametros a form
+                /******************************************************/
+                // Initialise OpenSAML
+                BasicParserPool ppMgr = null;
 
-                // TODO: check parameter: authnResponse
-                out.println("<input type='hidden' name='DATA' value='" + Base64.encodeBase64String(authnResponse.toString().getBytes())
-                        + "'>");
-				out.println("<input type='hidden' name='" + EduGAIN2StorkProxy.SERVICEHEADERSTR + "' value='"+ serviceparam + "'>");
+                try {
+                    DefaultBootstrap.bootstrap();
+                    ppMgr = new BasicParserPool();
+                } catch (Exception e) {
+                    // TODO
+                }
+                // InputStream samlrespstream = new
+                // ByteArrayInputStream(storkResp.getBytes());
+                byte[] samlreqbase64decoded = Base64.decodeBase64(authnResponse.getTokenSaml());
+                InputStream samlrespstream = new ByteArrayInputStream(samlreqbase64decoded);
 
-				//out.println("<center><input type='submit' value='Send' method='post'></center>");
-				out.println("<center><button type='submit' value='Send' method='post'><img src='webapp/img/send.png' width=25 border=3></button></center>");
-				out.println("</form>");
+                try {
+                    Document samlrespdoc = ppMgr.parse(samlrespstream);
+                    Element samlelement = samlrespdoc.getDocumentElement();
+                    NamedNodeMap attrmap = samlelement.getAttributes();
+                    for (int i = 0; i < attrmap.getLength(); i++) {
+                        Node n = attrmap.item(i);
+                        if (n.getNodeName().equals("AssertionConsumerServiceURL")) {
+                            logger.info("Esta es la assertion url:" + n.getNodeValue());
+                        }
+                        logger.info(" " + attrmap.item(i));
+                    }
+                    logger.info(attrmap.toString());
+
+                    UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
+                    Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(samlelement);
+                    XMLObject responseXmlObj;
+                    Response responseSAML = null;
+                    try {
+                        XMLObjectBuilderFactory builderFactory = Configuration.getBuilderFactory();
+
+                        responseXmlObj = unmarshaller.unmarshall(samlelement);
+                        responseSAML = (Response) responseXmlObj;
+                        Assertion assertion = responseSAML.getAssertions().get(0);
+                        logger.info("assertion: " + assertion);
+                        String subject = assertion.getSubject().getNameID().getValue();
+                        logger.info("subject: " + subject);
+                        String issuer = assertion.getIssuer().getValue();
+                        logger.info("issuer: " + issuer);
+                        String audience = assertion.getConditions().getAudienceRestrictions().get(0).getAudiences().get(0).getAudienceURI();
+                        logger.info("audience: " + audience);
+                        String statusCode = responseSAML.getStatus().getStatusCode().getValue();
+                        logger.info("status: " + statusCode);
+                        Signature sig = responseSAML.getSignature();
+                        // SignatureValidator validator = new
+                        // SignatureValidator(credential);
+                        // validator.validate(sig);
+
+                        // Credential signingCredential =
+                        // getSigningCredential(keystore,
+                        // storetype, storepass, alias, keypass);
+                        //
+                        // Signature signature = (Signature)
+                        // Configuration.getBuilderFactory()
+                        // .getBuilder(Signature.DEFAULT_ELEMENT_NAME)
+                        // .buildObject(Signature.DEFAULT_ELEMENT_NAME);
+                        //
+                        // signature.setSigningCredential(signingCredential);
+                        // signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA1);
+                        // signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
+                    } catch (UnmarshallingException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+
+                    XMLObjectBuilderFactory builderFactory = Configuration.getBuilderFactory();
+                    Assertion assertion = responseSAML.getAssertions().get(0);
+
+                    SAMLObjectBuilder<Issuer> issuerbuilder = (SAMLObjectBuilder<Issuer>) builderFactory
+                            .getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
+                    Issuer issuerobj = issuerbuilder.buildObject();
+                    issuerobj.setValue("http://edupeps.inf.um.es");
+                    responseSAML.setIssuer(issuerobj);
+                    assertion.getIssuer().setValue("http://edupeps.inf.um.es");
+                    logger.info("issuer 2: " + assertion.getIssuer().getValue());
+
+                    assertion.getConditions().getAudienceRestrictions().get(0).getAudiences().get(0)
+                            .setAudienceURI("https://storksp-test.aai.grnet.gr/shibboleth");
+                    String audience = assertion.getConditions().getAudienceRestrictions().get(0).getAudiences().get(0).getAudienceURI();
+                    logger.info("audience 2: " + audience);
+
+                    try {
+                        Marshaller marshallerAssertion = Configuration.getMarshallerFactory().getMarshaller(assertion);
+                        marshallerAssertion.marshall(assertion);
+                        Marshaller marshallerResponse = Configuration.getMarshallerFactory().getMarshaller(responseSAML);
+                        Element edupepsResponseElement = marshallerResponse.marshall(responseSAML);
+                        String xml = XMLHelper.nodeToString(edupepsResponseElement);
+                        logger.info("response-xml:\n" + xml);
+                        String eduresponseEncoded = org.opensaml.xml.util.Base64.encodeBytes(xml.getBytes(),
+                                org.opensaml.xml.util.Base64.DONT_BREAK_LINES);
+                        logger.info("response-encoded:\n" + eduresponseEncoded);
+
+                        // Parameter saml response to form
+                        out.println("<input type='hidden' name='DATA' value='" + eduresponseEncoded + "'>");
+
+                    } catch (MarshallingException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+
+                } catch (XMLParserException xmlparsee) {
+                    System.err.println("Unable to xml parse SAMLint Request)" + xmlparsee);
+                }
+                /******************************************************/
+
+                out.println("<input type='hidden' name='" + EduGAIN2StorkProxy.SERVICEHEADERSTR + "' value='" + serviceparam + "'>");
+                out.println("<center><button type='submit' value='Send' method='post'><img src='webapp/img/send.png' width=25 border=3></button></center>");
+                out.println("</form>");
 			}
-
 		}
 		out.println(HTML_END);
 	}
