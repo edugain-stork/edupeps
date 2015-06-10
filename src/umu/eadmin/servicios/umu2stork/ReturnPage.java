@@ -2,7 +2,6 @@ package umu.eadmin.servicios.umu2stork;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -16,6 +15,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.codec.binary.Base64;
+
 import eu.stork.peps.auth.commons.AttributeUtil;
 import eu.stork.peps.auth.commons.IPersonalAttributeList;
 import eu.stork.peps.auth.commons.PEPSUtil;
@@ -24,11 +25,6 @@ import eu.stork.peps.auth.commons.PersonalAttribute;
 import eu.stork.peps.auth.commons.STORKAuthnResponse;
 import eu.stork.peps.auth.engine.STORKSAMLEngine;
 import eu.stork.peps.exceptions.STORKSAMLEngineException;
-
-import org.apache.commons.codec.binary.Base64;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * Servlet implementation class ReturnPage
@@ -263,83 +259,11 @@ public class ReturnPage extends HttpServlet {
 				out.println("<center><h1>" + i18n.getProperty("info.return.cas") + "</h1></br><h2>" + new Date().toString() + "</h2></center>");
 				out.println("<form id='myForm' name='myForm' action='" + returnURLparam + "' method='post'>");
 
-				// Todos los parámetros, incluyendo los iniciales del CAS (DATA, URL, APP y SERVCE) se meten en un ArrayJSON que codificado con rsa
-				JSONArray parametros = new JSONArray();
-				JSONObject parametro = new JSONObject();
-				try{
-					parametro.put(EduGAIN2StorkProxy.APPHEADERSTR, appparam);
-					parametros.put(parametro);
-					parametro = new JSONObject();
-					parametro.put(EduGAIN2StorkProxy.URLHEADERSTR, returnURLparam);
-					parametros.put(parametro);
-					parametro = new JSONObject();
-					parametro.put(EduGAIN2StorkProxy.DATAHEADERSTR, dataparam);
-					parametros.put(parametro);
-					parametro = new JSONObject();
-					parametro.put(EduGAIN2StorkProxy.SERVICEHEADERSTR, serviceparam);
-					parametros.put(parametro);
-
-					personalAttributeList = authnResponse.getPersonalAttributeList();
-					Map<String, JSONArray> atributosComplejos = new HashMap<String, JSONArray>();
-					ArrayList<PersonalAttribute> attrList = new ArrayList<PersonalAttribute>(personalAttributeList.values());
-					for (PersonalAttribute pa: attrList) {
-						if (!pa.isEmptyComplexValue())
-						{
-							Map<String,String>complex = pa.getComplexValue();
-							// Crear JSON para atributos complejos
-							JSONObject complexjson = new JSONObject();
-							for (String key: complex.keySet())
-							{
-								try {
-									complexjson.put(key, complex.get(key));
-								}
-								catch(JSONException jse)
-								{
-									logger.severe("Imposible introducir JSON STORK Complex attr " + key + ": " + complex.get(key));
-									throw new ServletException(jse);
-								}
-							}
-							if (atributosComplejos.containsKey(pa.getName()))
-							{
-								JSONArray array = atributosComplejos.get(pa.getName());
-								array.put(complexjson);
-							}
-							else
-							{
-								JSONArray array = new JSONArray();
-								array.put(complexjson);
-								atributosComplejos.put(pa.getName(), array);
-							}
-						}
-						else
-						{
-							parametro = new JSONObject();
-							if (pa.getValue().size() > 1)
-								parametro.put(pa.getName(), AttributeUtil.listToString(pa.getValue(),PEPSValues.ATTRIBUTE_VALUE_SEP.toString()));
-							else if (pa.getValue().size() == 1 && pa.getValue().get(0).length() > 0)
-								parametro.put(pa.getName(), pa.getValue().get(0));
-							parametros.put(parametro);
-						}
-					}
-
-					//Ahora tenemos que meter los atributos complejos
-					for(String key: atributosComplejos.keySet())
-					{
-						parametro=new JSONObject();
-						parametro.put(key, atributosComplejos.get(key));
-						parametros.put(parametro);
-					}
-
-				} catch (JSONException jse)
-				{
-					logger.severe("Imposible introducir parámetros del CAS en JSON: " + jse);
-					throw new ServletException(jse);
-				}
-				logger.info("Parametros: " + parametros.toString());
-				out.println("Received Values: " + parametros.toString());
-
 				// Parametros a form
-				out.println("<input type='hidden' name='DATA' value='"+ Base64.encodeBase64String(parametros.toString().getBytes()) + "'>");
+
+                // TODO: check parameter: authnResponse
+                out.println("<input type='hidden' name='DATA' value='" + Base64.encodeBase64String(authnResponse.toString().getBytes())
+                        + "'>");
 				out.println("<input type='hidden' name='" + EduGAIN2StorkProxy.SERVICEHEADERSTR + "' value='"+ serviceparam + "'>");
 
 				//out.println("<center><input type='submit' value='Send' method='post'></center>");
