@@ -65,7 +65,7 @@ public class ReturnPage extends HttpServlet {
         
 	private final static Logger logger = Logger.getLogger(umu.eadmin.servicios.umu2stork.ReturnPage.class.getName());
 
-	private final long MAX_SESSION_TIME = 10 * 60000; // 60000 ms in a minute
+	private final long MAX_SESSION_TIME = 10 * 60000 * 2; // 60000 ms in a minute x2
 
 	private Stork2ProxyH2DB proxyH2db;
 	   
