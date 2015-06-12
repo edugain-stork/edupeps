@@ -93,6 +93,7 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 	private static String spapp;
 	private static String spcountry;
 	private static String spid;
+
 	
 	private Stork2ProxyH2DB proxyH2db;
 
@@ -355,6 +356,8 @@ public class EduGAIN2StorkProxy extends HttpServlet {
                 //InputStream samlreqstream = new ByteArrayInputStream(samlreqbase64decoded);
                 InputStream samlreqstream = new ByteArrayInputStream(samlreqinflated);
 
+
+        String returnPageUrlSP = "";
 		try {
 			Document samlreqdoc = ppMgr.parse(samlreqstream);
 			Element samlelement = samlreqdoc.getDocumentElement();
@@ -365,7 +368,7 @@ public class EduGAIN2StorkProxy extends HttpServlet {
                 if (n.getNodeName().equals("AssertionConsumerServiceURL"))
                 {
                     logger.info("Esta es la assertion url:" + n.getNodeValue());
-                    this.returnPageUrl = n.getNodeValue();
+                    returnPageUrlSP = n.getNodeValue();
                 }
                 out.println(" " + attrmap.item(i));
             }
@@ -503,7 +506,7 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 //		// SAVE SESSION
         // saveSession(String jsessionid, String uuid, String appname, String url, String service, String lang)
 		try {
-			this.proxyH2db.saveSession(jsessionid, "", "", this.returnPageUrl, serviceparam, langparam);
+			this.proxyH2db.saveSession(jsessionid, "", "", returnPageUrlSP, serviceparam, langparam);
 		}
 		catch (Exception e)
 		{
