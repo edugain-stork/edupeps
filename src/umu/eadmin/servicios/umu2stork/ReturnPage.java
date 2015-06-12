@@ -359,7 +359,7 @@ public class ReturnPage extends HttpServlet {
                         logger.info("response-encoded:\n" + eduresponseEncoded);
 
                         // Parameter saml response to form
-                        out.println("<input type='hidden' name='DATA' value='" + eduresponseEncoded + "'>");
+                        out.println("<input type='hidden' name='SAMLRequest' value='" + eduresponseEncoded + "'>");
 
                     } catch (MarshallingException e) {
                         // TODO Auto-generated catch block
