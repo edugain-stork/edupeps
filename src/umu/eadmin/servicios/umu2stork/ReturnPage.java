@@ -274,7 +274,7 @@ public class ReturnPage extends HttpServlet {
                 }
                 // InputStream samlrespstream = new
                 // ByteArrayInputStream(storkResp.getBytes());
-                byte[] samlreqbase64decoded = Base64.decodeBase64(authnResponse.getTokenSaml());
+                byte[] samlreqbase64decoded = Base64.decodeBase64(paramSAMLResponse);
                 InputStream samlrespstream = new ByteArrayInputStream(samlreqbase64decoded);
 
                 try {
