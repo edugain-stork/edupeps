@@ -337,9 +337,9 @@ public class ReturnPage extends HttpServlet {
                     SAMLObjectBuilder<Issuer> issuerbuilder = (SAMLObjectBuilder<Issuer>) builderFactory
                             .getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
                     Issuer issuerobj = issuerbuilder.buildObject();
-                    issuerobj.setValue(properties.getProperty("proxy.spName");
+                    issuerobj.setValue("http://edupeps.inf.um.es");
                     responseSAML.setIssuer(issuerobj);
-                    assertion.getIssuer().setValue(properties.getProperty("proxy.spName");
+                    assertion.getIssuer().setValue("http://edupeps.inf.um.es");
                     logger.info("issuer 2: " + assertion.getIssuer().getValue());
 
                     assertion.getConditions().getAudienceRestrictions().get(0).getAudiences().get(0)
