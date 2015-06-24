@@ -337,13 +337,12 @@ public class ReturnPage extends HttpServlet {
                     SAMLObjectBuilder<Issuer> issuerbuilder = (SAMLObjectBuilder<Issuer>) builderFactory
                             .getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
                     Issuer issuerobj = issuerbuilder.buildObject();
-                    issuerobj.setValue("http://edupeps.inf.um.es");
+                    issuerobj.setValue(properties.getProperty(returnURLparam));
                     responseSAML.setIssuer(issuerobj);
-                    assertion.getIssuer().setValue("http://edupeps.inf.um.es");
+                    assertion.getIssuer().setValue(properties.getProperty(returnURLparam));
                     logger.info("issuer 2: " + assertion.getIssuer().getValue());
 
-                    assertion.getConditions().getAudienceRestrictions().get(0).getAudiences().get(0)
-                            .setAudienceURI("https://storksp-test.aai.grnet.gr/shibboleth");
+                    assertion.getConditions().getAudienceRestrictions().get(0).getAudiences().get(0).setAudienceURI(serviceparam);
                     String audience = assertion.getConditions().getAudienceRestrictions().get(0).getAudiences().get(0).getAudienceURI();
                     logger.info("audience 2: " + audience);
 

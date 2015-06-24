@@ -30,8 +30,15 @@ import eu.stork.peps.auth.engine.STORKSAMLEngine;
 import eu.stork.peps.exceptions.STORKSAMLEngineException;
 
 import org.opensaml.DefaultBootstrap;
+import org.opensaml.Configuration;
+import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.parse.BasicParserPool;
 import org.opensaml.xml.parse.XMLParserException;
+import org.opensaml.xml.io.Unmarshaller;
+import org.opensaml.xml.io.UnmarshallerFactory;
+import org.opensaml.xml.io.UnmarshallingException;
+import org.opensaml.saml2.core.AuthnRequest;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -284,7 +291,6 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 		}
 		for (String aux : headerparammap.values()) {
 			logger.info("\tparam: " + aux);
-
 		}
 
 		String jsessionid = "";
@@ -357,22 +363,38 @@ public class EduGAIN2StorkProxy extends HttpServlet {
                 InputStream samlreqstream = new ByteArrayInputStream(samlreqinflated);
 
 
-        String returnPageUrlSP = "";
+        String returnPageUrlSP = null;
+        String SPIssuer = null;
 		try {
 			Document samlreqdoc = ppMgr.parse(samlreqstream);
 			Element samlelement = samlreqdoc.getDocumentElement();
-			NamedNodeMap attrmap = samlelement.getAttributes();
-			for( int i=0; i < attrmap.getLength(); i++)
-			{
-                Node n = attrmap.item(i);
-                if (n.getNodeName().equals("AssertionConsumerServiceURL"))
-                {
-                    logger.info("Esta es la assertion url:" + n.getNodeValue());
-                    returnPageUrlSP = n.getNodeValue();
-                }
-                out.println(" " + attrmap.item(i));
+			//NamedNodeMap attrmap = samlelement.getAttributes();
+			//for( int i=0; i < attrmap.getLength(); i++)
+			//{
+            //    Node n = attrmap.item(i);
+            //    if (n.getNodeName().equals("AssertionConsumerServiceURL"))
+            //    {
+            //        logger.info("Esta es la assertion url:" + n.getNodeValue());
+            //        returnPageUrlSP = n.getNodeValue();
+            //    }
+            //    out.println(" " + attrmap.item(i));
+            //}
+            //out.println(attrmap.toString());
+
+            UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
+            Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(samlelement);
+            AuthnRequest authnRequestSAML = null;
+            try {
+                authnRequestSAML = (AuthnRequest) unmarshaller.unmarshall(samlelement);
+                SPIssuer = authnRequestSAML.getIssuer().getValue();
+                logger.info("issuer: " + SPIssuer);
+                returnPageUrlSP = authnRequestSAML.getAssertionConsumerServiceURL();
+                logger.info("consumerService-returnpage: "+ returnPageUrlSP);
+                //Signature sig = authnRequestSAML.getSignature();
+            } catch (UnmarshallingException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
-            out.println(attrmap.toString());
 		} catch (XMLParserException xmlparsee) {
 			logger.severe("Unable to xml parse SAMLint Request)" + xmlparsee);
 			throw new ServletException("ERROR: Unable to xml parse SAMLint Request");
@@ -393,8 +415,6 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 			return;
 		}
 		logger.info("CountryCode: " + countryCodeParam);
-		
-	
 		
 		logger.info("Creando Personal Attribute List para consulta");
 		PersonalAttributeList pal = new PersonalAttributeList();
@@ -503,10 +523,10 @@ public class EduGAIN2StorkProxy extends HttpServlet {
 			e.printStackTrace();
 		}
 
-//		// SAVE SESSION
+		// SAVE SESSION
         // saveSession(String jsessionid, String uuid, String appname, String url, String service, String lang)
 		try {
-			this.proxyH2db.saveSession(jsessionid, "", "", returnPageUrlSP, serviceparam, langparam);
+			this.proxyH2db.saveSession(jsessionid, "", "", returnPageUrlSP, SPIssuer, langparam);
 		}
 		catch (Exception e)
 		{
