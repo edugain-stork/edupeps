@@ -24,16 +24,20 @@ import org.opensaml.common.SAMLObjectBuilder;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.Issuer;
 import org.opensaml.saml2.core.Response;
+import org.opensaml.saml2.core.impl.ResponseMarshaller;
 import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.XMLObjectBuilderFactory;
-import org.opensaml.xml.io.Marshaller;
 import org.opensaml.xml.io.MarshallingException;
 import org.opensaml.xml.io.Unmarshaller;
 import org.opensaml.xml.io.UnmarshallerFactory;
 import org.opensaml.xml.io.UnmarshallingException;
 import org.opensaml.xml.parse.BasicParserPool;
 import org.opensaml.xml.parse.XMLParserException;
+import org.opensaml.xml.security.SecurityConfiguration;
+import org.opensaml.xml.security.SecurityHelper;
 import org.opensaml.xml.signature.Signature;
+import org.opensaml.xml.signature.SignatureException;
+import org.opensaml.xml.signature.Signer;
 import org.opensaml.xml.util.XMLHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -346,24 +350,86 @@ public class ReturnPage extends HttpServlet {
                     String audience = assertion.getConditions().getAudienceRestrictions().get(0).getAudiences().get(0).getAudienceURI();
                     logger.info("audience 2: " + audience);
 
+                    /**********************************************************/
+
+                    SigningCredential sign = new SigningCredential();
+                    sign.intializeCredentials("local-demo", "local-demo-cert", "/opt/keystores/storkDemoKeys.jks");
+
+                    Signature signature = (Signature) Configuration.getBuilderFactory().getBuilder(Signature.DEFAULT_ELEMENT_NAME)
+                            .buildObject(Signature.DEFAULT_ELEMENT_NAME);
+
+                    signature.setSigningCredential(sign.getSigningCredential());
+
+                    // This is also the default if a null SecurityConfiguration
+                    // is specified
+                    SecurityConfiguration secConfig = Configuration.getGlobalSecurityConfiguration();
+                    // If null this would result in the default KeyInfoGenerator
+                    // being used
+                    String keyInfoGeneratorProfile = "XMLSignature";
+
                     try {
-                        Marshaller marshallerAssertion = Configuration.getMarshallerFactory().getMarshaller(assertion);
-                        marshallerAssertion.marshall(assertion);
-                        Marshaller marshallerResponse = Configuration.getMarshallerFactory().getMarshaller(responseSAML);
-                        Element edupepsResponseElement = marshallerResponse.marshall(responseSAML);
-                        String xml = XMLHelper.nodeToString(edupepsResponseElement);
-                        logger.info("response-xml:\n" + xml);
-                        String eduresponseEncoded = org.opensaml.xml.util.Base64.encodeBytes(xml.getBytes(),
-                                org.opensaml.xml.util.Base64.DONT_BREAK_LINES);
-                        logger.info("response-encoded:\n" + eduresponseEncoded);
+                        SecurityHelper.prepareSignatureParams(signature, sign.getSigningCredential(), secConfig, null);
+                    } catch (SecurityException e) {
+                        e.printStackTrace();
+                    } catch (org.opensaml.xml.security.SecurityException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
 
-                        // Parameter saml response to form
-                        out.println("<input type='hidden' name='SAMLRequest' value='" + eduresponseEncoded + "'>");
+                    responseSAML.setSignature(signature);
 
+                    try {
+                        Configuration.getMarshallerFactory().getMarshaller(assertion).marshall(assertion);
+                        ;
+                        Configuration.getMarshallerFactory().getMarshaller(responseSAML).marshall(responseSAML);
+                    } catch (MarshallingException e) {
+                        e.printStackTrace();
+                    }
+
+                    try {
+                        Signer.signObject(signature);
+                    } catch (SignatureException e) {
+                        e.printStackTrace();
+                    }
+
+                    ResponseMarshaller marshaller = new ResponseMarshaller();
+                    Element plain = null;
+                    try {
+                        plain = marshaller.marshall(responseSAML);
                     } catch (MarshallingException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
+                    // response.setSignature(sign);
+                    String samlResponse = XMLHelper.nodeToString(plain);
+                    logger.info("********************\n*\n***********\n:");
+                    // logger.info("********************\n*\n***********::" +
+                    // samlResponse);
+
+                    /**************************************************/
+                    /*
+                     * try { //Marshaller marshallerAssertion =
+                     * Configuration.getMarshallerFactory
+                     * ().getMarshaller(assertion);
+                     * //marshallerAssertion.marshall(assertion); //Marshaller
+                     * marshallerResponse =
+                     * Configuration.getMarshallerFactory().
+                     * getMarshaller(responseSAML); //Element
+                     * edupepsResponseElement =
+                     * marshallerResponse.marshall(responseSAML); //String xml =
+                     * XMLHelper.nodeToString(edupepsResponseElement);
+                     * 
+                     * } catch (MarshallingException e) { // TODO Auto-generated
+                     * catch block e.printStackTrace(); }
+                     */
+                    String xml = samlResponse;
+                    logger.info("response-xml:\n" + xml);
+                    String eduresponseEncoded = org.opensaml.xml.util.Base64.encodeBytes(xml.getBytes(),
+                            org.opensaml.xml.util.Base64.DONT_BREAK_LINES);
+                    logger.info("response-encoded:\n" + eduresponseEncoded);
+
+                    // Parameter saml response to form
+                    out.println("<input type='hidden' name='SAMLRequest' value='" + eduresponseEncoded + "'>");
 
                 } catch (XMLParserException xmlparsee) {
                     System.err.println("Unable to xml parse SAMLint Request)" + xmlparsee);
