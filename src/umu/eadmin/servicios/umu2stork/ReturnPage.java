@@ -234,7 +234,8 @@ public class ReturnPage extends HttpServlet {
 		STORKAuthnResponse authnResponse = null;
 		IPersonalAttributeList personalAttributeList = null;
 		
-		/// String spUrl = properties.getProperty("proxy.url");
+		String proxyID = properties.getProperty("proxy.entityID");
+		logger.info("proxy.entityID: "+proxyID);
 		//Decodes SAML Response
 		byte[] decSamlToken = PEPSUtil.decodeSAMLToken(paramSAMLResponse);
       	
@@ -341,9 +342,9 @@ public class ReturnPage extends HttpServlet {
                     SAMLObjectBuilder<Issuer> issuerbuilder = (SAMLObjectBuilder<Issuer>) builderFactory
                             .getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
                     Issuer issuerobj = issuerbuilder.buildObject();
-                    issuerobj.setValue(properties.getProperty(returnURLparam));
+                    issuerobj.setValue(proxyID);
                     responseSAML.setIssuer(issuerobj);
-                    assertion.getIssuer().setValue(properties.getProperty(returnURLparam));
+                    assertion.getIssuer().setValue(proxyID);
                     logger.info("issuer 2: " + assertion.getIssuer().getValue());
 
                     assertion.getConditions().getAudienceRestrictions().get(0).getAudiences().get(0).setAudienceURI(serviceparam);
