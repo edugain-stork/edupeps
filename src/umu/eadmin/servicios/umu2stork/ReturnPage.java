@@ -4,11 +4,15 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.security.KeyStore;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -18,14 +22,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
+import org.joda.time.DateTime;
 import org.opensaml.Configuration;
 import org.opensaml.DefaultBootstrap;
 import org.opensaml.common.SAMLObjectBuilder;
+import org.opensaml.common.SAMLVersion;
 import org.opensaml.saml2.core.Assertion;
+import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.Issuer;
 import org.opensaml.saml2.core.Response;
+import org.opensaml.saml2.core.Status;
+import org.opensaml.saml2.core.StatusCode;
 import org.opensaml.saml2.core.impl.ResponseMarshaller;
-import org.opensaml.xml.XMLObject;
 import org.opensaml.xml.XMLObjectBuilderFactory;
 import org.opensaml.xml.io.MarshallingException;
 import org.opensaml.xml.io.Unmarshaller;
@@ -49,9 +57,13 @@ import eu.stork.peps.auth.commons.IPersonalAttributeList;
 import eu.stork.peps.auth.commons.PEPSUtil;
 import eu.stork.peps.auth.commons.PEPSValues;
 import eu.stork.peps.auth.commons.PersonalAttribute;
+import eu.stork.peps.auth.commons.PersonalAttributeList;
 import eu.stork.peps.auth.commons.STORKAuthnResponse;
 import eu.stork.peps.auth.engine.STORKSAMLEngine;
 import eu.stork.peps.exceptions.STORKSAMLEngineException;
+import eu.storkWebedu.translator.EGAttribute;
+import eu.storkWebedu.translator.Translator;
+
 
 /**
  * Servlet implementation class ReturnPage
@@ -137,7 +149,6 @@ public class ReturnPage extends HttpServlet {
 		// Header without auto send
 		out.println("<body style=\"background-image:url(webapp/img/background.png); background-size:scale; background-repeat: no-repeat;background-position: center top\">");
 
-			
 		logger.info("---- edupeps::ReturnPage::doPost() ----");
 		Map<String, String> map = new HashMap<String, String>();
 		Enumeration<String> headerNames = request.getHeaderNames();
@@ -164,10 +175,9 @@ public class ReturnPage extends HttpServlet {
 			logger.severe("Unable to recover jsessionid - Malformed cookie\n" + iobe);
 			throw new ServletException("ReturnPage::DoPost() - Unable to recover jsessionid (IndexOutOfBoundsException)\n" + iobe);		
 		}
-				
+
 		String paramSAMLResponse = null;
-		
-		
+
 		logger.info("Parameters Received:");
 		Enumeration<String> parameterNames = request.getParameterNames();
         while (parameterNames.hasMoreElements()) {
@@ -181,13 +191,12 @@ public class ReturnPage extends HttpServlet {
         	if (paramName.compareTo("SAMLResponse") == 0)
         		paramSAMLResponse = paramValues[0];
     	}
-        
-		
-		String appparam  = "";
+
+        String appparam  = "";
 		String dataparam = "";
 		String returnURLparam = "";
 		String serviceparam = "";
-		
+
 		// Recover session or abort if timeout
 		Stork2ProxyH2DB.Stork2ProxyH2DBSession session = null;
 		try{
@@ -204,7 +213,7 @@ public class ReturnPage extends HttpServlet {
 			i18n = new Properties();
 			i18n.load(ReturnPage.class.getClassLoader().getResourceAsStream("es.properties"));
 		}
-		
+
 		Date maxallowedtime = new Date(session.getSessiontime().getTime() + MAX_SESSION_TIME);
 		Date actualtime = new Date();
 		out.println("ActualTime: " + actualtime + "\nsessiontime: " + session.getSessiontime() + "/" + session.getSessiontimestr() + "\n maxallowedtime: " + maxallowedtime);
@@ -267,7 +276,11 @@ public class ReturnPage extends HttpServlet {
                         + "</h2></center>");
 				out.println("<form id='myForm' name='myForm' action='" + returnURLparam + "' method='post'>");
 
+                // Get PersonalAttributeList form StorkResponse
+                personalAttributeList = authnResponse.getPersonalAttributeList();
+
                 /******************************************************/
+
                 // Initialise OpenSAML
                 BasicParserPool ppMgr = null;
 
@@ -297,79 +310,141 @@ public class ReturnPage extends HttpServlet {
 
                     UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
                     Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(samlelement);
-                    XMLObject responseXmlObj;
+                    //XMLObject responseXmlObj;
+                    
                     Response responseSAML = null;
+                    Response responseSAMLfromPEPS = null;
                     try {
-                        XMLObjectBuilderFactory builderFactory = Configuration.getBuilderFactory();
-
-                        responseXmlObj = unmarshaller.unmarshall(samlelement);
-                        responseSAML = (Response) responseXmlObj;
-                        Assertion assertion = responseSAML.getAssertions().get(0);
-                        logger.info("assertion: " + assertion);
-                        String subject = assertion.getSubject().getNameID().getValue();
-                        logger.info("subject: " + subject);
-                        String issuer = assertion.getIssuer().getValue();
-                        logger.info("issuer: " + issuer);
-                        String audience = assertion.getConditions().getAudienceRestrictions().get(0).getAudiences().get(0).getAudienceURI();
-                        logger.info("audience: " + audience);
-                        String statusCode = responseSAML.getStatus().getStatusCode().getValue();
-                        logger.info("status: " + statusCode);
-                        Signature sig = responseSAML.getSignature();
-                        // SignatureValidator validator = new
-                        // SignatureValidator(credential);
-                        // validator.validate(sig);
-
-                        // Credential signingCredential =
-                        // getSigningCredential(keystore,
-                        // storetype, storepass, alias, keypass);
-                        //
-                        // Signature signature = (Signature)
-                        // Configuration.getBuilderFactory()
-                        // .getBuilder(Signature.DEFAULT_ELEMENT_NAME)
-                        // .buildObject(Signature.DEFAULT_ELEMENT_NAME);
-                        //
-                        // signature.setSigningCredential(signingCredential);
-                        // signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA1);
-                        // signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
+                        responseSAMLfromPEPS = (Response) unmarshaller.unmarshall(samlelement);
                     } catch (UnmarshallingException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
-
+                    
+                    Assertion assertionPEPS = responseSAMLfromPEPS.getAssertions().get(0);
                     XMLObjectBuilderFactory builderFactory = Configuration.getBuilderFactory();
-                    Assertion assertion = responseSAML.getAssertions().get(0);
+                    
+/*                    SAMLObjectBuilder<Response> responseBuilder = (SAMLObjectBuilder<Response>)builderFactory.getBuilder(Response.DEFAULT_ELEMENT_NAME);
+                    responseSAML = responseBuilder.buildObject();
+                    responseSAML.setID(UUID.randomUUID().toString());
+                    responseSAML.setIssueInstant(new DateTime());
+                    responseSAML.setInResponseTo(responseSAMLfromPEPS.getInResponseTo());
+                    responseSAML.setVersion(SAMLVersion.VERSION_20);
 
-                    SAMLObjectBuilder<Issuer> issuerbuilder = (SAMLObjectBuilder<Issuer>) builderFactory
-                            .getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
+                    SAMLObjectBuilder<Issuer> issuerbuilder = (SAMLObjectBuilder<Issuer>) builderFactory.getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
                     Issuer issuerobj = issuerbuilder.buildObject();
                     issuerobj.setValue(proxyID);
                     responseSAML.setIssuer(issuerobj);
-                    assertion.getIssuer().setValue(proxyID);
-                    logger.info("issuer 2: " + assertion.getIssuer().getValue());
+                    //assertion.getIssuer().setValue(proxyID);
+                    logger.info("issuer 2 response: " + responseSAML.getIssuer().getValue());
 
-                    assertion.getConditions().getAudienceRestrictions().get(0).getAudiences().get(0).setAudienceURI(serviceparam);
-                    String audience = assertion.getConditions().getAudienceRestrictions().get(0).getAudiences().get(0).getAudienceURI();
-                    logger.info("audience 2: " + audience);
+                    Status status  = ((SAMLObjectBuilder<Status>) builderFactory.getBuilder(Status.DEFAULT_ELEMENT_NAME)).buildObject();
+                    StatusCode statuscode = ((SAMLObjectBuilder<StatusCode>) builderFactory.getBuilder(StatusCode.DEFAULT_ELEMENT_NAME)).buildObject();
+                    statuscode.setValue(StatusCode.SUCCESS_URI);
+                    status.setStatusCode(statuscode);
+                    responseSAML.setStatus(status);
+
+                    responseSAML.setDestination(serviceparam);
+
+                    SAMLObjectBuilder<Assertion> assertionBuilder = (SAMLObjectBuilder<Assertion>)builderFactory.getBuilder(Assertion.DEFAULT_ELEMENT_NAME);
+                    Assertion assertion = assertionBuilder.buildObject();
+                    assertion.setID(UUID.randomUUID().toString());
+                    assertion.setIssueInstant(new DateTime());
+                    assertion.setVersion(SAMLVersion.VERSION_20);
+
+                    Issuer assertionIssuer = ((SAMLObjectBuilder<Issuer>) builderFactory.getBuilder(Issuer.DEFAULT_ELEMENT_NAME)).buildObject();
+                    assertionIssuer.setValue(proxyID);
+                    assertion.setIssuer(assertionIssuer);
+
+                    responseSAML.getAssertions().add(assertion);
+*/
+
+                    String statusCode = responseSAMLfromPEPS.getStatus().getStatusCode().getValue();
+                    logger.info("responseSAMLfromPEPS status: " + statusCode);
+                    SAMLObjectBuilder<Issuer> issuerbuilder = (SAMLObjectBuilder<Issuer>) builderFactory.getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
+                    Issuer issuerobj = issuerbuilder.buildObject();
+                    issuerobj.setValue(proxyID);
+                    responseSAMLfromPEPS.setIssuer(issuerobj);
+                    logger.info("responseSAMLfromPEPS Issuer: " + issuerobj.getValue());
+                    responseSAMLfromPEPS.setDestination(returnURLparam);
+                    
+                    logger.info("assertionPEPS: " + assertionPEPS);
+                    String subject = assertionPEPS.getSubject().getNameID().getValue();
+                    logger.info("assertionPEPS subject: " + subject);
+                    assertionPEPS.getSubject().getSubjectConfirmations().get(0).getSubjectConfirmationData().setRecipient(returnURLparam);
+                    logger.info("assertionPEPS subject recipient: " +  assertionPEPS.getSubject().getSubjectConfirmations().get(0).getSubjectConfirmationData().getRecipient());
+                    Issuer assertionIssuer = ((SAMLObjectBuilder<Issuer>) builderFactory.getBuilder(Issuer.DEFAULT_ELEMENT_NAME)).buildObject();
+                    assertionIssuer.setValue(proxyID);
+                    assertionPEPS.setIssuer(assertionIssuer);
+                    logger.info("assertionPEPS issuer: " + assertionPEPS.getIssuer().getValue());
+                    assertionPEPS.getConditions().getAudienceRestrictions().get(0).getAudiences().get(0).setAudienceURI(serviceparam);
+                    logger.info("assertionPEPS audience: " + assertionPEPS.getConditions().getAudienceRestrictions().get(0).getAudiences().get(0).getAudienceURI());
+                    assertionPEPS.getConditions().getConditions().remove(assertionPEPS.getConditions().getOneTimeUse());
+                    
+                    
+                    // Attribute translation from stork format to edugain format
+                    logger.info(" personalAttributeList: \n\n\n"+personalAttributeList.size());
+                    logger.info(" personalAttributeList get(0): "+personalAttributeList.iterator().next().getName());
+                    ArrayList<EGAttribute> aledugain = eu.storkWebedu.translator.Translator.translate(personalAttributeList);
+                    if (aledugain != null)
+                    	logger.info ("aledugain not null");
+                    else 
+                    	logger.info ("aledugain is null");
+                    
+                    logger.info(" aledugain: \n\n\n"+aledugain.size());
+                    logger.info(" aledugain get(0): \n\n\n"+aledugain.get(0).getName());
+                    
+                                        
+                    /***************/
+                    
+                    // SignatureValidator validator = new
+                    // SignatureValidator(credential);
+                    // validator.validate(sig);
+
+                    // Credential signingCredential =
+                    // getSigningCredential(keystore,
+                    // storetype, storepass, alias, keypass);
+                    //
+                    // Signature signature = (Signature)
+                    // Configuration.getBuilderFactory()
+                    // .getBuilder(Signature.DEFAULT_ELEMENT_NAME)
+                    // .buildObject(Signature.DEFAULT_ELEMENT_NAME);
+                    //
+                    // signature.setSigningCredential(signingCredential);
+                    // signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA1);
+                    // signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
 
                     /**********************************************************/
+                    
+                    Assertion assertionSign = assertionPEPS;
+                    Response responseSign = responseSAMLfromPEPS;
+                    //Assertion assertionSign = assertion;
+                    //Response responseSign = responseSAML;
 
                     SigningCredential sign = new SigningCredential();
-                    sign.intializeCredentials("local-demo", "local-demo-cert", "/opt/keystores/storkDemoKeys.jks");
+                    //intializeCredentials(String passwordParam, String certAliasNameParam, String keyAliasNameParam, String fileNameParam) {
+                    
+                    //sign.intializeCredentials("local-demo", "local-demo-cert", "local-demo",  "/opt/keystores/storkDemoKeys.jks");
+                    sign.intializeCredentials("edupeps", "edupeps-cert", "edupeps",  "/opt/keystores/edupeps.jks");
 
-                    Signature signature = (Signature) Configuration.getBuilderFactory().getBuilder(Signature.DEFAULT_ELEMENT_NAME)
+                    
+                    Signature signatureAssertion = (Signature) Configuration.getBuilderFactory().getBuilder(Signature.DEFAULT_ELEMENT_NAME)
                             .buildObject(Signature.DEFAULT_ELEMENT_NAME);
 
-                    signature.setSigningCredential(sign.getSigningCredential());
+                    Signature signatureResponse = (Signature) Configuration.getBuilderFactory().getBuilder(Signature.DEFAULT_ELEMENT_NAME)
+                            .buildObject(Signature.DEFAULT_ELEMENT_NAME);
 
-                    // This is also the default if a null SecurityConfiguration
-                    // is specified
+                    signatureAssertion.setSigningCredential(sign.getSigningCredential());
+                    signatureResponse.setSigningCredential(sign.getSigningCredential());
+
+                    // This is also the default if a null SecurityConfiguration is specified
                     SecurityConfiguration secConfig = Configuration.getGlobalSecurityConfiguration();
-                    // If null this would result in the default KeyInfoGenerator
-                    // being used
+                    // If null this would result in the default KeyInfoGenerator being used
                     String keyInfoGeneratorProfile = "XMLSignature";
 
                     try {
-                        SecurityHelper.prepareSignatureParams(signature, sign.getSigningCredential(), secConfig, null);
+                        SecurityHelper.prepareSignatureParams(signatureAssertion, sign.getSigningCredential(), secConfig, null);
+                        SecurityHelper.prepareSignatureParams(signatureResponse, sign.getSigningCredential(), secConfig, null);
                     } catch (SecurityException e) {
                         e.printStackTrace();
                     } catch (org.opensaml.xml.security.SecurityException e) {
@@ -377,18 +452,30 @@ public class ReturnPage extends HttpServlet {
                         e.printStackTrace();
                     }
 
-                    responseSAML.setSignature(signature);
+                    assertionSign.setSignature(signatureAssertion);
+                    responseSign.setSignature(signatureResponse);
 
                     try {
-                        Configuration.getMarshallerFactory().getMarshaller(assertion).marshall(assertion);
-                        ;
-                        Configuration.getMarshallerFactory().getMarshaller(responseSAML).marshall(responseSAML);
+                        Configuration.getMarshallerFactory().getMarshaller(assertionSign).marshall(assertionSign);
                     } catch (MarshallingException e) {
                         e.printStackTrace();
                     }
 
                     try {
-                        Signer.signObject(signature);
+                        Signer.signObject(signatureAssertion);
+                    } catch (SignatureException e) {
+                        e.printStackTrace();
+                    }
+
+                    try {
+                        Configuration.getMarshallerFactory().getMarshaller(assertionSign).marshall(assertionSign);
+                        Configuration.getMarshallerFactory().getMarshaller(responseSign).marshall(responseSign);
+                    } catch (MarshallingException e) {
+                        e.printStackTrace();
+                    }
+
+                    try {
+                        Signer.signObject(signatureResponse);
                     } catch (SignatureException e) {
                         e.printStackTrace();
                     }
@@ -396,18 +483,16 @@ public class ReturnPage extends HttpServlet {
                     ResponseMarshaller marshaller = new ResponseMarshaller();
                     Element plain = null;
                     try {
-                        plain = marshaller.marshall(responseSAML);
+                        plain = marshaller.marshall(responseSign);
                     } catch (MarshallingException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
-                    // response.setSignature(sign);
                     String samlResponse = XMLHelper.nodeToString(plain);
                     logger.info("********************\n*\n***********\n:");
-                    // logger.info("********************\n*\n***********::" +
-                    // samlResponse);
 
-                    /**************************************************/
+                    /**************************************************/ 
+
                     /*
                      * try { //Marshaller marshallerAssertion =
                      * Configuration.getMarshallerFactory

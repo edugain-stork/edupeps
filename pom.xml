@@ -18,6 +18,13 @@
 			<artifactId>bcprov-jdk16</artifactId>
 			<version>1.45</version>
 		</dependency>
+
+         <dependency>
+            <groupId>eu.storkWebedu</groupId>
+            <artifactId>translator</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
 		<!--PEPS -->
 		<dependency>
 			<groupId>eu.stork</groupId>
@@ -96,7 +103,9 @@
 		  <artifactId>h2</artifactId>
 		  <version>1.4.182</version>
 		</dependency>
-		
+		<!-- Translation engine -->
+        <!-- To translate from edugain to stork (and viceversa) attributes -->
+
 		<!--  JSON for complex attributes -->
 		<dependency>
 			<groupId>org.json</groupId>

@@ -26,7 +26,7 @@ public class SigningCredential {
     // final String certificateAliasName = "selfsigned";
     // final String fileName = "/opt/keystores/storkDemoKeys.jks";
 
-    void intializeCredentials(String passwordParam, String certificateAliasNameParam, String fileNameParam) {
+    void intializeCredentials(String passwordParam, String certAliasNameParam, String keyAliasNameParam, String fileNameParam) {
         KeyStore ks = null;
         FileInputStream fis = null;
         char[] password = passwordParam.toCharArray();
@@ -64,10 +64,13 @@ public class SigningCredential {
         }
 
         // Get Private Key Entry From Certificate
-        KeyStore.PrivateKeyEntry pkEntry = null;
+        KeyStore.PrivateKeyEntry keyEntry = null;
+        KeyStore.TrustedCertificateEntry certEntry = null;
         try {
-            pkEntry = (KeyStore.PrivateKeyEntry) ks.getEntry(certificateAliasNameParam,
-                    new KeyStore.PasswordProtection(passwordParam.toCharArray()));
+            //pkEntry = (KeyStore.PrivateKeyEntry) ks.getEntry(certificateAliasNameParam, new KeyStore.PasswordProtection(passwordParam.toCharArray()));
+            certEntry = (KeyStore.TrustedCertificateEntry) ks.getEntry(certAliasNameParam, null);
+            keyEntry = (KeyStore.PrivateKeyEntry) ks.getEntry(keyAliasNameParam, new KeyStore.PasswordProtection(passwordParam.toCharArray()));
+
         } catch (NoSuchAlgorithmException e) {
             logger.severe("Failed to Get Private Entry From the keystore:: " + fileNameParam + " " + e);
         } catch (UnrecoverableEntryException e) {
@@ -75,9 +78,9 @@ public class SigningCredential {
         } catch (KeyStoreException e) {
             logger.severe("Failed to Get Private Entry From the keystore:: " + fileNameParam + " " + e);
         }
-        PrivateKey pk = pkEntry.getPrivateKey();
+        PrivateKey pk = keyEntry.getPrivateKey();
 
-        X509Certificate certificate = (X509Certificate) pkEntry.getCertificate();
+        X509Certificate certificate = (X509Certificate) certEntry.getTrustedCertificate();
         BasicX509Credential credential = new BasicX509Credential();
         credential.setEntityCertificate(certificate);
         credential.setPrivateKey(pk);
