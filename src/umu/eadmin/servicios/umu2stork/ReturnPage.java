@@ -30,6 +30,7 @@ import org.opensaml.common.SAMLVersion;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.Attribute;
 import org.opensaml.saml2.core.Issuer;
+import org.opensaml.saml2.core.NameID;
 import org.opensaml.saml2.core.Response;
 import org.opensaml.saml2.core.Status;
 import org.opensaml.saml2.core.StatusCode;
@@ -367,10 +368,16 @@ public class ReturnPage extends HttpServlet {
                     responseSAMLfromPEPS.setIssuer(issuerobj);
                     logger.info("responseSAMLfromPEPS Issuer: " + issuerobj.getValue());
                     responseSAMLfromPEPS.setDestination(returnURLparam);
-                    
-                    logger.info("assertionPEPS: " + assertionPEPS);
+
                     String subject = assertionPEPS.getSubject().getNameID().getValue();
-                    logger.info("assertionPEPS subject: " + subject);
+                    logger.info("assertionPEPS old subject: " + subject);
+                    SAMLObjectBuilder<NameID> nameidbuilder = (SAMLObjectBuilder<NameID>) builderFactory.getBuilder(NameID.DEFAULT_ELEMENT_NAME);
+                    NameID nameid = nameidbuilder.buildObject();
+                    nameid.setFormat(NameID.TRANSIENT);
+                    nameid.setValue(UUID.randomUUID().toString());
+                    assertionPEPS.getSubject().setNameID(nameid);
+                    logger.info("assertionPEPS new nameID: " + assertionPEPS.getSubject().getNameID());
+
                     assertionPEPS.getSubject().getSubjectConfirmations().get(0).getSubjectConfirmationData().setRecipient(returnURLparam);
                     logger.info("assertionPEPS subject recipient: " +  assertionPEPS.getSubject().getSubjectConfirmations().get(0).getSubjectConfirmationData().getRecipient());
                     Issuer assertionIssuer = ((SAMLObjectBuilder<Issuer>) builderFactory.getBuilder(Issuer.DEFAULT_ELEMENT_NAME)).buildObject();
