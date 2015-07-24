@@ -383,18 +383,23 @@ public class ReturnPage extends HttpServlet {
                     
                     
                     // Attribute translation from stork format to edugain format
-                    logger.info(" personalAttributeList: \n\n\n"+personalAttributeList.size());
+                    logger.info(" personalAttributeList: \n"+personalAttributeList.size());
                     logger.info(" personalAttributeList get(0): "+personalAttributeList.iterator().next().getName());
-                    ArrayList<EGAttribute> aledugain = eu.storkWebedu.translator.Translator.translate(personalAttributeList);
+                    ArrayList<Attribute>[] aledugain = eu.storkWebedu.translator.Translator.translateToOpenSAML(personalAttributeList);
                     if (aledugain != null)
                     	logger.info ("aledugain not null");
                     else 
                     	logger.info ("aledugain is null");
                     
-                    logger.info(" aledugain: \n\n\n"+aledugain.size());
-                    logger.info(" aledugain get(0): \n\n\n"+aledugain.get(0).getName());
-                    
-                                        
+                    logger.info(" aledugain: \ntranslated: " + aledugain[0].size() + "\tpassthrough: "+aledugain[1].size());
+                    logger.info(" aledugain get(0): \n"+ aledugain[0].get(0).getName());
+
+                    assertionPEPS.getAttributeStatements().get(0).getAttributes().clear();
+                    assertionPEPS.getAttributeStatements().get(0).getAttributes().addAll(aledugain[0]);
+                    assertionPEPS.getAttributeStatements().get(0).getAttributes().addAll(aledugain[1]);
+
+
+
                     /***************/
                     
                     // SignatureValidator validator = new
@@ -512,7 +517,7 @@ public class ReturnPage extends HttpServlet {
                     logger.info("response-xml:\n" + xml);
                     String eduresponseEncoded = org.opensaml.xml.util.Base64.encodeBytes(xml.getBytes(),
                             org.opensaml.xml.util.Base64.DONT_BREAK_LINES);
-                    logger.info("response-encoded:\n" + eduresponseEncoded);
+                    //logger.info("response-encoded:\n" + eduresponseEncoded);
 
                     // Parameter saml response to form
                     out.println("<input type='hidden' name='SAMLRequest' value='" + eduresponseEncoded + "'>");
