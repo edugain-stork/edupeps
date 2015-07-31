@@ -207,7 +207,7 @@ public class ReturnPage extends HttpServlet {
                 closeWithError(out, i18n, "error.return.jsession");
                 throw new ServletException("Unable to recover session: " + jsessionid);
             }
-            // Carga de i18n de otros idiomas
+            // Multi Language i18n
             String langparam = session.getLang();
             if (langparam.equals("es"))
             {
