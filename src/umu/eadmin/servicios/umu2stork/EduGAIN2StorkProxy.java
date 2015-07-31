@@ -321,7 +321,7 @@ public class EduGAIN2StorkProxy extends HttpServlet {
             throw new ServletException("eduGAIN2StorkProxy::DoPost() - Unable to recover jsessionid (IndexOutOfBoundsException)\n" + iobe);
         }
 		
-        // Carga de i18n de otros idiomas
+        // Load Multi-language i18n
         String langparam = request.getParameter(LANGHEADERSTR);
         if (langparam != null)
             if (langparam.equals("es"))
@@ -389,12 +389,8 @@ public class EduGAIN2StorkProxy extends HttpServlet {
         }
         out.println("</BR></BR>");
 		
-        // Here we should try to extract the attributes requested in SAMLInt
 
-
-        /***        ***/
-
-        // Recuperar atributo de país
+        // Country code attribute recovery
         String countryCodeParam = request.getParameter("CountryCode");
         if (countryCodeParam == null) {
             logger.severe("FATAL ERROR: Missing Country Code Parameter, abort!");
@@ -490,8 +486,7 @@ public class EduGAIN2StorkProxy extends HttpServlet {
         String authReqSTORKString = "";
         final STORKAuthnRequest saml;
         try {
-            // engine.generateSTORKAuthnRequest(authRequest);
-            logger.info("Generar STORK SAML Auth Request desde el auth request");
+            logger.info("Generate STORK SAML Auth Request from auth Request");
             saml = engine.generateSTORKAuthnRequest(authRequest);
             byte[] authReqSTORKbytes = Base64.encode(saml.getTokenSaml());
             authReqSTORKString = new String(authReqSTORKbytes);
