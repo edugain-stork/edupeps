@@ -21,11 +21,6 @@ public class SigningCredential {
     private final static Logger logger = Logger.getLogger(umu.eadmin.servicios.umu2stork.SigningCredential.class.getName());
     private Credential signingCredential = null;
 
-    // final Signature signature = null;
-    // final String password = "secret";
-    // final String certificateAliasName = "selfsigned";
-    // final String fileName = "/opt/keystores/storkDemoKeys.jks";
-
     void intializeCredentials(String passwordParam, String certAliasNameParam, String keyAliasNameParam, String fileNameParam) {
         KeyStore ks = null;
         FileInputStream fis = null;
@@ -67,7 +62,6 @@ public class SigningCredential {
         KeyStore.PrivateKeyEntry keyEntry = null;
         KeyStore.TrustedCertificateEntry certEntry = null;
         try {
-            //pkEntry = (KeyStore.PrivateKeyEntry) ks.getEntry(certificateAliasNameParam, new KeyStore.PasswordProtection(passwordParam.toCharArray()));
             certEntry = (KeyStore.TrustedCertificateEntry) ks.getEntry(certAliasNameParam, null);
             keyEntry = (KeyStore.PrivateKeyEntry) ks.getEntry(keyAliasNameParam, new KeyStore.PasswordProtection(passwordParam.toCharArray()));
 
