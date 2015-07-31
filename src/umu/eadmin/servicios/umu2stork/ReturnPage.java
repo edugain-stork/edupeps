@@ -280,8 +280,6 @@ public class ReturnPage extends HttpServlet {
                     // Get PersonalAttributeList form StorkResponse
                     personalAttributeList = authnResponse.getPersonalAttributeList();
 
-                    /******************************************************/
-
                     // Initialise OpenSAML
                     BasicParserPool ppMgr = null;
 
@@ -291,8 +289,6 @@ public class ReturnPage extends HttpServlet {
                     } catch (Exception e) {
                         // TODO
                     }
-                    // InputStream samlrespstream = new
-                    // ByteArrayInputStream(storkResp.getBytes());
                     byte[] samlreqbase64decoded = Base64.decodeBase64(paramSAMLResponse);
                     InputStream samlrespstream = new ByteArrayInputStream(samlreqbase64decoded);
 
@@ -311,7 +307,6 @@ public class ReturnPage extends HttpServlet {
 
                         UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
                         Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(samlelement);
-                        //XMLObject responseXmlObj;
                     
                         Response responseSAML = null;
                         Response responseSAMLfromPEPS = null;
@@ -325,41 +320,6 @@ public class ReturnPage extends HttpServlet {
                         Assertion assertionPEPS = responseSAMLfromPEPS.getAssertions().get(0);
                         XMLObjectBuilderFactory builderFactory = Configuration.getBuilderFactory();
                     
-/*                    SAMLObjectBuilder<Response> responseBuilder = (SAMLObjectBuilder<Response>)builderFactory.getBuilder(Response.DEFAULT_ELEMENT_NAME);
-                      responseSAML = responseBuilder.buildObject();
-                      responseSAML.setID(UUID.randomUUID().toString());
-                      responseSAML.setIssueInstant(new DateTime());
-                      responseSAML.setInResponseTo(responseSAMLfromPEPS.getInResponseTo());
-                      responseSAML.setVersion(SAMLVersion.VERSION_20);
-
-                      SAMLObjectBuilder<Issuer> issuerbuilder = (SAMLObjectBuilder<Issuer>) builderFactory.getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
-                      Issuer issuerobj = issuerbuilder.buildObject();
-                      issuerobj.setValue(proxyID);
-                      responseSAML.setIssuer(issuerobj);
-                      //assertion.getIssuer().setValue(proxyID);
-                      logger.info("issuer 2 response: " + responseSAML.getIssuer().getValue());
-
-                      Status status  = ((SAMLObjectBuilder<Status>) builderFactory.getBuilder(Status.DEFAULT_ELEMENT_NAME)).buildObject();
-                      StatusCode statuscode = ((SAMLObjectBuilder<StatusCode>) builderFactory.getBuilder(StatusCode.DEFAULT_ELEMENT_NAME)).buildObject();
-                      statuscode.setValue(StatusCode.SUCCESS_URI);
-                      status.setStatusCode(statuscode);
-                      responseSAML.setStatus(status);
-
-                      responseSAML.setDestination(serviceparam);
-
-                      SAMLObjectBuilder<Assertion> assertionBuilder = (SAMLObjectBuilder<Assertion>)builderFactory.getBuilder(Assertion.DEFAULT_ELEMENT_NAME);
-                      Assertion assertion = assertionBuilder.buildObject();
-                      assertion.setID(UUID.randomUUID().toString());
-                      assertion.setIssueInstant(new DateTime());
-                      assertion.setVersion(SAMLVersion.VERSION_20);
-
-                      Issuer assertionIssuer = ((SAMLObjectBuilder<Issuer>) builderFactory.getBuilder(Issuer.DEFAULT_ELEMENT_NAME)).buildObject();
-                      assertionIssuer.setValue(proxyID);
-                      assertion.setIssuer(assertionIssuer);
-
-                      responseSAML.getAssertions().add(assertion);
-*/
-
                         String statusCode = responseSAMLfromPEPS.getStatus().getStatusCode().getValue();
                         logger.info("responseSAMLfromPEPS status: " + statusCode);
                         SAMLObjectBuilder<Issuer> issuerbuilder = (SAMLObjectBuilder<Issuer>) builderFactory.getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
@@ -404,39 +364,11 @@ public class ReturnPage extends HttpServlet {
                         assertionPEPS.getAttributeStatements().get(0).getAttributes().clear();
                         assertionPEPS.getAttributeStatements().get(0).getAttributes().addAll(aledugain[0]);
                         assertionPEPS.getAttributeStatements().get(0).getAttributes().addAll(aledugain[1]);
-
-
-
-                        /***************/
-                    
-                        // SignatureValidator validator = new
-                        // SignatureValidator(credential);
-                        // validator.validate(sig);
-
-                        // Credential signingCredential =
-                        // getSigningCredential(keystore,
-                        // storetype, storepass, alias, keypass);
-                        //
-                        // Signature signature = (Signature)
-                        // Configuration.getBuilderFactory()
-                        // .getBuilder(Signature.DEFAULT_ELEMENT_NAME)
-                        // .buildObject(Signature.DEFAULT_ELEMENT_NAME);
-                        //
-                        // signature.setSigningCredential(signingCredential);
-                        // signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA1);
-                        // signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
-
-                        /**********************************************************/
-                    
+                  
                         Assertion assertionSign = assertionPEPS;
                         Response responseSign = responseSAMLfromPEPS;
-                        //Assertion assertionSign = assertion;
-                        //Response responseSign = responseSAML;
 
                         SigningCredential sign = new SigningCredential();
-                        //intializeCredentials(String passwordParam, String certAliasNameParam, String keyAliasNameParam, String fileNameParam) {
-                    
-                        //sign.intializeCredentials("local-demo", "local-demo-cert", "local-demo",  "/opt/keystores/storkDemoKeys.jks");
                         sign.intializeCredentials("edupeps", "edupeps-cert", "edupeps",  "/opt/keystores/edupeps.jks");
 
                     
@@ -501,38 +433,16 @@ public class ReturnPage extends HttpServlet {
                             e.printStackTrace();
                         }
                         String samlResponse = XMLHelper.nodeToString(plain);
-                        logger.info("********************\n*\n***********\n:");
-
-                        /**************************************************/ 
-
-                        /*
-                         * try { //Marshaller marshallerAssertion =
-                         * Configuration.getMarshallerFactory
-                         * ().getMarshaller(assertion);
-                         * //marshallerAssertion.marshall(assertion); //Marshaller
-                         * marshallerResponse =
-                         * Configuration.getMarshallerFactory().
-                         * getMarshaller(responseSAML); //Element
-                         * edupepsResponseElement =
-                         * marshallerResponse.marshall(responseSAML); //String xml =
-                         * XMLHelper.nodeToString(edupepsResponseElement);
-                         * 
-                         * } catch (MarshallingException e) { // TODO Auto-generated
-                         * catch block e.printStackTrace(); }
-                         */
                         String xml = samlResponse;
                         logger.info("response-xml:\n" + xml);
                         String eduresponseEncoded = org.opensaml.xml.util.Base64.encodeBytes(xml.getBytes(),
                                                                                              org.opensaml.xml.util.Base64.DONT_BREAK_LINES);
-                        //logger.info("response-encoded:\n" + eduresponseEncoded);
-
                         // Parameter saml response to form
                         out.println("<input type='hidden' name='SAMLRequest' value='" + eduresponseEncoded + "'>");
 
                     } catch (XMLParserException xmlparsee) {
                         System.err.println("Unable to xml parse SAMLint Request)" + xmlparsee);
                     }
-                    /******************************************************/
 
                     out.println("<input type='hidden' name='" + EduGAIN2StorkProxy.SERVICEHEADERSTR + "' value='" + serviceparam + "'>");
                     out.println("<center><button type='submit' value='Send' method='post'><img src='webapp/img/send.png' width=25 border=3></button></center>");
