@@ -145,9 +145,9 @@ public class ReturnPage extends HttpServlet {
             PrintWriter out = response.getWriter();
             out.println(HTML_START);
             out.println(HTML_HEAD);
-            // Auto-Send Form header
+            // AUTO-LOAD Form header
             //out.println("<body style=\"background-image:url(webapp/img/background.png); background-size:scale; background-repeat: no-repeat;background-position: center top\" onload=\"document.createElement('form').submit.call(document.getElementById('myForm'))\">");
-            // Header without auto send
+            // NO AUTO-LOAD
             out.println("<body style=\"background-image:url(webapp/img/background.png); background-size:scale; background-repeat: no-repeat;background-position: center top\">");
 
             logger.info("---- edupeps::ReturnPage::doPost() ----");
