@@ -24,7 +24,6 @@ import org.bouncycastle.util.encoders.Base64;
 
 import eu.stork.peps.auth.commons.PersonalAttribute;
 import eu.stork.peps.auth.commons.PersonalAttributeList;
-//import eu.stork.peps.auth.commons.PEPSUtil;
 import eu.stork.peps.auth.commons.STORKAuthnRequest;
 import eu.stork.peps.auth.engine.STORKSAMLEngine;
 import eu.stork.peps.exceptions.STORKSAMLEngineException;
@@ -368,19 +367,6 @@ public class EduGAIN2StorkProxy extends HttpServlet {
         try {
             Document samlreqdoc = ppMgr.parse(samlreqstream);
             Element samlelement = samlreqdoc.getDocumentElement();
-            //NamedNodeMap attrmap = samlelement.getAttributes();
-            //for( int i=0; i < attrmap.getLength(); i++)
-            //{
-            //    Node n = attrmap.item(i);
-            //    if (n.getNodeName().equals("AssertionConsumerServiceURL"))
-            //    {
-            //        logger.info("Esta es la assertion url:" + n.getNodeValue());
-            //        returnPageUrlSP = n.getNodeValue();
-            //    }
-            //    out.println(" " + attrmap.item(i));
-            //}
-            //out.println(attrmap.toString());
-
             UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
             Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(samlelement);
             AuthnRequest authnRequestSAML = null;
@@ -532,21 +518,6 @@ public class EduGAIN2StorkProxy extends HttpServlet {
         {
             throw new ServletException("DB Problem: " + e);
         }
-//		try{
-//			Statement s = h2connection.createStatement();
-//			s.execute("DELETE FROM JSESSIONSTATUS WHERE JSESSIONID='" + jsessionid + "'");
-//			Date sessiontime = new Date();
-//			SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SS");
-//			String sessiontimestr = sdf.format(sessiontime); 
-//			logger.info("Inserting session: " + "'" + jsessionid + "', parsedatetime('" + sessiontimestr  + "','dd-MM-yyyy hh:mm:ss.SS')" );
-//			s.executeUpdate("INSERT INTO JSESSIONSTATUS VALUES('" + jsessionid + "', parsedatetime('" + sessiontimestr + "','dd-MM-yyyy hh:mm:ss.SS'),'" + dataparamdecoded + "','" + appname + "', '" + returnURLparam + "', '" + serviceparam + "')");
-//			s.close();
-//		}catch(SQLException sqle)
-//		{
-//			logger.severe("Unable to insert jsessionid in DB\n" + sqle);
-//			throw new ServletException("eduGAIN2StorkProxy::DoPost() - Unable to insert jsessionid in DB\n" + sqle);
-//		}
-
 
         Date date = new Date();
 
