@@ -16,6 +16,10 @@ import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.security.x509.BasicX509Credential;
 
 
+/**
+ * @author Elena Torroglosa
+ * Stores signature credentials
+ */
 public class SigningCredential {
     
     private final static Logger logger = Logger.getLogger(umu.eadmin.servicios.umu2stork.SigningCredential.class.getName());
