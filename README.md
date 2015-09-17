@@ -6,4 +6,4 @@ The role of this software is acting as a proxy where the translation between SAM
 
 This work is being done as part of the Géant GN4 project in collaboration with eid Stork2.
 
-For extra information and build/deployment instructions visit the wiki.
+For extra information and build/deployment instructions visit the wiki (https://github.com/edugain-stork/edupeps/wiki).
